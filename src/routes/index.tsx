@@ -146,13 +146,15 @@ function App() {
         stage === 'play' ? 'game-shell game-shell--play' : 'game-shell'
       }
     >
-      <button
-        className="corner-settings"
-        onClick={() => setSettingsOpen(true)}
-        aria-label="Open settings"
-      >
-        <Settings size={21} />
-      </button>
+      {stage !== 'play' && (
+        <button
+          className="corner-settings"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open settings"
+        >
+          <Settings size={21} />
+        </button>
+      )}
       {stage === 'start' && (
         <StartScreen
           heroCount={heroCount}
@@ -197,6 +199,11 @@ function App() {
           onHealth={updateHealth}
           onRound={() => setRound((current) => current + 1)}
           onNextRoom={nextRoom}
+          onEndAdventure={() => {
+            setAdventure(null)
+            setSelectedCard(null)
+            setStage('start')
+          }}
         />
       )}
       {settingsOpen && (
@@ -443,6 +450,7 @@ function PlayScreen({
   onHealth,
   onRound,
   onNextRoom,
+  onEndAdventure,
 }: {
   adventure: Adventure
   encounter: Adventure['encounters'][number]
@@ -454,7 +462,9 @@ function PlayScreen({
   onHealth: (id: string, amount: number) => void
   onRound: () => void
   onNextRoom: () => void
+  onEndAdventure: () => void
 }) {
+  const [confirmEnding, setConfirmEnding] = useState(false)
   if (!selected) return null
   const card =
     selected.kind === 'hero' ? (
@@ -491,6 +501,20 @@ function PlayScreen({
             Next room <ChevronRight />
           </button>
         )}
+        <button
+          className={
+            confirmEnding ? 'end-game-button is-confirming' : 'end-game-button'
+          }
+          onClick={() => {
+            if (confirmEnding) {
+              onEndAdventure()
+              return
+            }
+            setConfirmEnding(true)
+          }}
+        >
+          {confirmEnding ? 'End now' : 'End'}
+        </button>
       </div>
       <nav
         className="card-switcher"

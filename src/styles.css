@@ -61,20 +61,23 @@ body:has(.game-shell--play) .app-header {
 .corner-settings {
   position: fixed;
   z-index: 20;
-  top: 1rem;
-  right: 1rem;
+  top: 0.75rem;
+  right: 0.75rem;
   display: grid;
   place-items: center;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 2.65rem;
+  height: 2.65rem;
   color: #f6ebd4;
-  border: 1px solid #56645d;
-  border-radius: 8px;
-  background: #1c2724;
-  box-shadow: 3px 3px 0 #090d0c;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 0.72;
 }
-.corner-settings:hover {
-  background: #293832;
+.corner-settings:hover,
+.corner-settings:focus-visible {
+  border-color: #536158;
+  background: #1c2724;
+  opacity: 1;
 }
 .setup-screen {
   width: min(720px, 100%);
@@ -528,7 +531,7 @@ legend {
 }
 .play-actions {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 0.45rem;
 }
 .play-actions button {
@@ -551,6 +554,16 @@ legend {
   color: #1c211d;
   border: 1px solid #e2b966;
   background: #e2b966;
+}
+.end-game-button {
+  color: #bdc8bb;
+  border: 1px solid #4d5b54;
+  background: transparent;
+}
+.end-game-button.is-confirming {
+  color: #241816;
+  border-color: #c77d67;
+  background: #c77d67;
 }
 .card-switcher {
   display: flex;
