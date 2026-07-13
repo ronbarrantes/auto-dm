@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { chooseDie, createAdventure, type AdventureOptions } from './rules'
+import { chooseDie, createAdventure, getActorOrder } from './rules'
+import type { AdventureOptions } from './rules'
 
 const options: AdventureOptions = {
   heroes: [
@@ -16,22 +17,65 @@ const options: AdventureOptions = {
 describe('Auto DM encounter generator', () => {
   it('uses only selected dice and always ends with one boss', () => {
     const adventure = createAdventure(options)
-    const monsters = adventure.encounters.flatMap((encounter) => encounter.monsters)
+    const monsters = adventure.encounters.flatMap(
+      (encounter) => encounter.monsters,
+    )
 
     expect(adventure.encounters).toHaveLength(4)
     expect(adventure.encounters.at(-1)?.isBoss).toBe(true)
-    expect(monsters.every((monster) => options.diceKit.includes(monster.damageDie))).toBe(true)
+    expect(
+      monsters.every((monster) => options.diceKit.includes(monster.damageDie)),
+    ).toBe(true)
   })
 
   it('keeps encounters to one monster when mobs are disabled', () => {
     const adventure = createAdventure(options)
 
-    expect(adventure.encounters.slice(0, -1).every((encounter) => encounter.monsters)).toBeTruthy()
-    expect(adventure.encounters.slice(0, -1).every((encounter) => encounter.monsters.length === 1)).toBe(true)
+    expect(
+      adventure.encounters
+        .slice(0, -1)
+        .every((encounter) => encounter.monsters.length === 1),
+    ).toBe(true)
   })
 
   it('picks the closest available die when a card asks for an unavailable die', () => {
     expect(chooseDie('d12', ['d4', 'd8'])).toBe('d8')
     expect(chooseDie('d4', ['d6', 'd8'])).toBe('d6')
+  })
+
+  it('scales target rolls across every difficulty for a solo hero', () => {
+    const soloOptions = {
+      ...options,
+      heroes: [options.heroes[0]],
+    }
+
+    expect(
+      createAdventure({ ...soloOptions, difficulty: 'easy' }).targetRoll,
+    ).toBe(9)
+    expect(
+      createAdventure({ ...soloOptions, difficulty: 'medium' }).targetRoll,
+    ).toBe(11)
+    expect(
+      createAdventure({ ...soloOptions, difficulty: 'hard' }).targetRoll,
+    ).toBe(13)
+  })
+
+  it('creates a monster mob only when the setting is enabled', () => {
+    const mobOptions = {
+      ...options,
+      heroes: [options.heroes[0]],
+      rooms: 5,
+      mobs: true,
+    }
+    const adventure = createAdventure(mobOptions)
+
+    expect(
+      adventure.encounters.some((encounter) => encounter.monsters.length > 1),
+    ).toBe(true)
+    expect(
+      getActorOrder(adventure, adventure.encounters[1]).map(
+        (actor) => actor.kind,
+      ),
+    ).toEqual(['hero', 'monster', 'monster', 'monster'])
   })
 })

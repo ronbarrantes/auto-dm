@@ -38,66 +38,78 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 ### 1. Lock the tabletop rules
 
-- [ ] Define the exact combat round: choose action, choose reaction when applicable, roll, resolve, continue.
-- [ ] Define the first success rule using a `d20`, including what counts as a success.
-- [ ] Define health, damage, healing, defeat, and victory using small, child-friendly numbers.
-- [ ] Decide whether reactions are limited per round, per combat, or by an item/resource.
-- [ ] Specify how multi-target and area-of-effect actions resolve.
+- [x] Define the exact combat round: choose action, choose reaction when applicable, roll, resolve, continue.
+- [x] Define the first success rule using a `d20`, including what counts as a success.
+- [x] Define health, damage, healing, defeat, and victory using small, child-friendly numbers.
+- [x] Decide whether reactions are limited per round, per combat, or by an item/resource.
+- [x] Specify how multi-target and area-of-effect actions resolve.
 - [ ] Write a one-page play guide and validate it in a short real-table playtest.
 
 **Stopping point:** The rules can be explained and played without the app by a child and an adult.
 
+**Current implementation:** The local prototype uses a `d20` success check (Easy 9+, Medium 11+, Hard 13+), followed by an enabled damage die. Each hero gets Standard Attack, Signature Move, and Use Item; monster cards have a default move and one special move. Table playtesting is still required before these rules are considered final.
+
 ### 2. Define heroes and hero creation
 
-- [ ] Choose initial classes: Paladin, Cleric, Wizard, Rogue, Ranger, and Fighter.
-- [ ] Give every class a balance role, health range, default action, and one signature move.
-- [ ] Decide how heritage is represented as optional story flavor: Elf, Human, Dwarf, and similar choices.
-- [ ] Define the minimum hero fields needed for balancing and card display.
-- [ ] Specify multi-hero party creation and editing.
+- [x] Choose initial classes: Paladin, Cleric, Wizard, Rogue, Ranger, and Fighter.
+- [x] Give every class a balance role, health range, default action, and one signature move.
+- [x] Decide how heritage is represented as optional story flavor: Elf, Human, Dwarf, and similar choices.
+- [x] Define the minimum hero fields needed for balancing and card display.
+- [x] Specify multi-hero party creation and editing.
 
 **Stopping point:** A group can create a balanced party of one or more heroes with no RPG knowledge.
 
+**Current implementation:** Hero creation supports a name, class, and heritage. Every class has a small health value, a preferred damage die, and a plain-language signature action.
+
 ### 3. Define dungeon setup and difficulty
 
-- [ ] Specify dungeon inputs: theme, number of rooms, party, final boss, difficulty, and Dice Kit.
-- [ ] Define Easy, Medium, and Hard in terms players can understand and in terms the balancing system can use.
+- [x] Specify dungeon inputs: theme, number of rooms, party, final boss, difficulty, and Dice Kit.
+- [x] Define Easy, Medium, and Hard in terms players can understand and in terms the balancing system can use.
 - [ ] Define the Dice Kit presets: Simple (`d6` + `d20`), Your Set, and Full Set.
-- [ ] Add the optional Mobs setting. When off, every encounter contains one monster; when on, it may contain groups such as three goblins.
-- [ ] Define the encounter progression from opening room through final boss.
+- [x] Add the optional Mobs setting. When off, every encounter contains one monster; when on, it may contain groups such as three goblins.
+- [x] Define the encounter progression from opening room through final boss.
 
 **Stopping point:** The app has a complete, understandable adventure-setup specification.
 
+**Current implementation:** The setup screen supports a party, 3-7 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
+
 ### 4. Design encounter balancing and generation
 
-- [ ] Create a party-strength model based on the selected heroes and their available actions.
-- [ ] Reserve a challenge budget for the final boss and distribute the rest across rooms.
-- [ ] Define how difficulty changes monster health, damage, count, and special abilities.
-- [ ] Define variety rules to prevent repetitive encounters.
-- [ ] Generate encounters that only use enabled Dice Kit dice.
-- [ ] Create test scenarios for solo heroes, mixed parties, every difficulty, and mobs on/off.
+- [x] Create a party-strength model based on the selected heroes and their available actions.
+- [x] Reserve a challenge budget for the final boss and distribute the rest across rooms.
+- [x] Define how difficulty changes monster health, damage, count, and special abilities.
+- [x] Define variety rules to prevent repetitive encounters.
+- [x] Generate encounters that only use enabled Dice Kit dice.
+- [x] Create test scenarios for solo heroes, mixed parties, every difficulty, and mobs on/off.
 
 **Stopping point:** Given the same setup, Auto DM can generate a complete dungeon with a defensible difficulty curve.
 
+**Current implementation:** The deterministic generator uses party health as a small strength signal, scales health by difficulty, avoids repeating the same monster in adjacent rooms, reserves a boss, and tests Dice Kit and mobs-off behavior. Balance values need real-table tuning.
+
 ### 5. Design the card system and tabletop flow
 
-- [ ] Define hero card content: health, actions, signature move, and required dice.
-- [ ] Define monster card content: health, turn instruction, damage die, reaction, and special ability.
+- [x] Define hero card content: health, actions, signature move, and required dice.
+- [x] Define monster card content: health, turn instruction, damage die, reaction, and special ability.
 - [ ] Define item cards for healing, protection, and a small number of dramatic effects.
-- [ ] Define the combat screen language for actor, targets, action, reaction, roll, and outcome.
-- [ ] Prototype a complete room-to-combat-to-next-room flow before visual polish.
+- [x] Define the combat screen language for actor, targets, action, reaction, roll, and outcome.
+- [x] Prototype a complete room-to-combat-to-next-room flow before visual polish.
 
 **Stopping point:** Cards and the combat view tell the table exactly what to do without outside instructions.
 
+**Current implementation:** The local combat view provides active actor, combat round, d20 target, action prompts, monster art cards, health controls, and room progression. Item cards are deliberately deferred.
+
 ### 6. Build the local, single-device experience
 
-- [ ] Set up the app shell, routes, and mobile-first visual foundation.
-- [ ] Build hero creation and party management.
-- [ ] Build dungeon setup, Dice Kit selection, difficulty, and Mobs settings.
-- [ ] Build encounter generation, hero cards, monster cards, and the combat-round view.
-- [ ] Add responsive layouts for phones, iPad, and constrained desktop use.
-- [ ] Add automated tests for core generation and combat state transitions.
+- [x] Set up the app shell, routes, and mobile-first visual foundation.
+- [x] Build hero creation and party management.
+- [x] Build dungeon setup, Dice Kit selection, difficulty, and Mobs settings.
+- [x] Build encounter generation, hero cards, monster cards, and the combat-round view.
+- [x] Add responsive layouts for phones, iPad, and constrained desktop use.
+- [x] Add automated tests for core generation and combat state transitions.
 
 **Stopping point:** One device can run a complete generated dungeon at a physical table.
+
+**Current implementation:** Complete for a local, single-device prototype. It intentionally does not persist adventures or synchronize between devices; that is Milestone 7.
 
 ### 7. Add shared sessions with Convex
 
@@ -125,38 +137,38 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 These are content candidates, not final rules. Each will later receive a simple card, balance values, supported dice, and at most one memorable ability in the first version.
 
-| Monster | Theme or role | Mob candidate |
-| --- | --- | --- |
-| Goblin | Sneaky basic enemy | Yes |
-| Skeleton | Simple undead guard | Yes |
-| Giant Rat | Fast beginner creature | Yes |
-| Bat Swarm | Flying nuisance | Yes |
-| Slime | Slow creature that splits or sticks | Yes |
-| Kobold | Trap-loving tunnel dweller | Yes |
-| Spider | Web and ambush creature | Yes |
-| Zombie | Slow, tough undead | Yes |
-| Bandit | Clever human-sized foe | Yes |
-| Orc | Strong frontline attacker | Yes |
-| Wolf | Fast pack hunter | Yes |
-| Cultist | Dark-magic follower | Yes |
-| Mimic | Treasure chest surprise | No |
-| Ghost | Spooky enemy that ignores some defenses | No |
-| Gargoyle | Stone guardian | No |
-| Dark Elf Scout | Fast magical scout | Yes |
-| Bugbear | Heavy ambusher | No |
-| Minotaur | Charging maze guardian | No |
-| Troll | Tough creature that recovers health | No |
-| Owlbear | Wild, dramatic bruiser | No |
-| Wraith | Advanced undead threat | No |
-| Basilisk | Petrifying stare boss-style creature | No |
-| Medusa | Dangerous magical foe | No |
-| Gelatinous Cube | Dungeon-corridor hazard creature | No |
-| Fire Elemental | Fire-themed magical threat | No |
-| Ice Elemental | Cold-themed magical threat | No |
-| Stone Golem | Very tough guardian | No |
-| Young Dragon | Major final boss | No |
-| Necromancer | Summons undead and serves as a boss | No |
-| Lich King | Late-game magical final boss | No |
+| Monster         | Theme or role                           | Mob candidate |
+| --------------- | --------------------------------------- | ------------- |
+| Goblin          | Sneaky basic enemy                      | Yes           |
+| Skeleton        | Simple undead guard                     | Yes           |
+| Giant Rat       | Fast beginner creature                  | Yes           |
+| Bat Swarm       | Flying nuisance                         | Yes           |
+| Slime           | Slow creature that splits or sticks     | Yes           |
+| Kobold          | Trap-loving tunnel dweller              | Yes           |
+| Spider          | Web and ambush creature                 | Yes           |
+| Zombie          | Slow, tough undead                      | Yes           |
+| Bandit          | Clever human-sized foe                  | Yes           |
+| Orc             | Strong frontline attacker               | Yes           |
+| Wolf            | Fast pack hunter                        | Yes           |
+| Cultist         | Dark-magic follower                     | Yes           |
+| Mimic           | Treasure chest surprise                 | No            |
+| Ghost           | Spooky enemy that ignores some defenses | No            |
+| Gargoyle        | Stone guardian                          | No            |
+| Dark Elf Scout  | Fast magical scout                      | Yes           |
+| Bugbear         | Heavy ambusher                          | No            |
+| Minotaur        | Charging maze guardian                  | No            |
+| Troll           | Tough creature that recovers health     | No            |
+| Owlbear         | Wild, dramatic bruiser                  | No            |
+| Wraith          | Advanced undead threat                  | No            |
+| Basilisk        | Petrifying stare boss-style creature    | No            |
+| Medusa          | Dangerous magical foe                   | No            |
+| Gelatinous Cube | Dungeon-corridor hazard creature        | No            |
+| Fire Elemental  | Fire-themed magical threat              | No            |
+| Ice Elemental   | Cold-themed magical threat              | No            |
+| Stone Golem     | Very tough guardian                     | No            |
+| Young Dragon    | Major final boss                        | No            |
+| Necromancer     | Summons undead and serves as a boss     | No            |
+| Lich King       | Late-game magical final boss            | No            |
 
 ## Open Questions
 

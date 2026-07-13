@@ -2,7 +2,8 @@ export const dice = ['d4', 'd6', 'd8', 'd10', 'd12'] as const
 
 export type Die = (typeof dice)[number]
 export type Difficulty = 'easy' | 'medium' | 'hard'
-export type HeroClassId = 'paladin' | 'cleric' | 'wizard' | 'rogue' | 'ranger' | 'fighter'
+export type HeroClassId =
+  'paladin' | 'cleric' | 'wizard' | 'rogue' | 'ranger' | 'fighter'
 export type Heritage = 'Human' | 'Elf' | 'Dwarf' | 'Halfling'
 
 export type Hero = {
@@ -53,7 +54,7 @@ export const heroClasses = {
     role: 'Protector',
     icon: '🛡️',
     health: 12,
-    attackDie: 'd8' as Die,
+    attackDie: 'd8',
     action: 'Shield a friend: take 1 hit for them.',
   },
   cleric: {
@@ -61,7 +62,7 @@ export const heroClasses = {
     role: 'Healer',
     icon: '✨',
     health: 9,
-    attackDie: 'd6' as Die,
+    attackDie: 'd6',
     action: 'Heal a hero: roll your damage die to restore health.',
   },
   wizard: {
@@ -69,7 +70,7 @@ export const heroClasses = {
     role: 'Magic',
     icon: '🔮',
     health: 7,
-    attackDie: 'd10' as Die,
+    attackDie: 'd10',
     action: 'Fireball: on a hit, every monster loses 1 health.',
   },
   rogue: {
@@ -77,7 +78,7 @@ export const heroClasses = {
     role: 'Quick attacker',
     icon: '🗡️',
     health: 8,
-    attackDie: 'd8' as Die,
+    attackDie: 'd8',
     action: 'Sneak attack: roll two d20s and keep the bigger one.',
   },
   ranger: {
@@ -85,7 +86,7 @@ export const heroClasses = {
     role: 'Reliable attacker',
     icon: '🏹',
     health: 9,
-    attackDie: 'd8' as Die,
+    attackDie: 'd8',
     action: 'Aim: your next hit cannot be Dodged.',
   },
   fighter: {
@@ -93,23 +94,29 @@ export const heroClasses = {
     role: 'Brave attacker',
     icon: '⚔️',
     health: 11,
-    attackDie: 'd8' as Die,
+    attackDie: 'd8',
     action: 'Power strike: use the next larger die you own.',
   },
-} satisfies Record<HeroClassId, {
-  label: string
-  role: string
-  icon: string
-  health: number
-  attackDie: Die
-  action: string
-}>
+} satisfies Record<
+  HeroClassId,
+  {
+    label: string
+    role: string
+    icon: string
+    health: number
+    attackDie: Die
+    action: string
+  }
+>
 
 const difficultyRules = {
   easy: { targetRoll: 9, healthBoost: 0, label: 'Easy' },
   medium: { targetRoll: 11, healthBoost: 1, label: 'Medium' },
   hard: { targetRoll: 13, healthBoost: 2, label: 'Hard' },
-} satisfies Record<Difficulty, { targetRoll: number; healthBoost: number; label: string }>
+} satisfies Record<
+  Difficulty,
+  { targetRoll: number; healthBoost: number; label: string }
+>
 
 const monsterDeck = [
   {
@@ -193,13 +200,16 @@ const bosses = [
   },
 ] as const
 
-const dieRank = Object.fromEntries(dice.map((die, index) => [die, index])) as Record<Die, number>
+const dieRank = Object.fromEntries(
+  dice.map((die, index) => [die, index]),
+) as Record<Die, number>
 
 export function chooseDie(preferred: Die, diceKit: Die[]) {
   if (diceKit.includes(preferred)) return preferred
 
   return diceKit.reduce((closest, die) =>
-    Math.abs(dieRank[die] - dieRank[preferred]) < Math.abs(dieRank[closest] - dieRank[preferred])
+    Math.abs(dieRank[die] - dieRank[preferred]) <
+    Math.abs(dieRank[closest] - dieRank[preferred])
       ? die
       : closest,
   )
@@ -224,12 +234,13 @@ export function createAdventure(options: AdventureOptions): Adventure {
     (total, hero) => total + heroClasses[hero.classId].health,
     0,
   )
-  const encounters = Array.from({ length: options.rooms }, (_, index) => {
+  const encounters = Array.from({ length: options.rooms }, (_room, index) => {
     const room = index + 1
     const isBoss = room === options.rooms
 
     if (isBoss) {
-      const boss = bosses[(options.rooms + options.heroes.length) % bosses.length]
+      const boss =
+        bosses[(options.rooms + options.heroes.length) % bosses.length]
       return {
         id: `room-${room}`,
         room,
@@ -240,31 +251,43 @@ export function createAdventure(options: AdventureOptions): Adventure {
           {
             ...boss,
             id: `${room}-boss`,
-            health: Math.max(10, boss.health + rule.healthBoost + Math.floor(partyPower / 14)),
+            health: Math.max(
+              10,
+              boss.health + rule.healthBoost + Math.floor(partyPower / 14),
+            ),
             damageDie: chooseDie(boss.damageDie, options.diceKit),
-            art: 'shadow',
+            art: 'shadow' as const,
             isBoss: true,
           },
         ],
       }
     }
 
-    const source = monsterDeck[(room + options.heroes.length - 1) % monsterDeck.length]
+    const source =
+      monsterDeck[(room + options.heroes.length - 1) % monsterDeck.length]
     const canMob = options.mobs && source.mob && room > 1
-    const monsterCount = canMob && (room + options.heroes.length) % 3 === 0 ? 3 : 1
-    const monsters = Array.from({ length: monsterCount }, (_, monsterIndex) => ({
-      ...source,
-      id: `${room}-${monsterIndex}`,
-      name: monsterCount > 1 ? `${source.name} ${monsterIndex + 1}` : source.name,
-      health: source.health + rule.healthBoost + (room > 2 ? 1 : 0),
-      damageDie: chooseDie(source.damageDie, options.diceKit),
-    }))
+    const monsterCount =
+      canMob && (room + options.heroes.length) % 3 === 0 ? 3 : 1
+    const monsters = Array.from(
+      { length: monsterCount },
+      (_monster, monsterIndex) => ({
+        ...source,
+        id: `${room}-${monsterIndex}`,
+        name:
+          monsterCount > 1 ? `${source.name} ${monsterIndex + 1}` : source.name,
+        health: source.health + rule.healthBoost + (room > 2 ? 1 : 0),
+        damageDie: chooseDie(source.damageDie, options.diceKit),
+      }),
+    )
 
     return {
       id: `room-${room}`,
       room,
       title: `Room ${room}: ${monsterCount > 1 ? `${monsterCount} foes` : 'a new foe'}`,
-      intro: monsterCount > 1 ? `A small mob of ${source.name}s rushes out.` : `A ${source.name} blocks the way.`,
+      intro:
+        monsterCount > 1
+          ? `A small mob of ${source.name}s rushes out.`
+          : `A ${source.name} blocks the way.`,
       isBoss: false,
       monsters,
     }
@@ -291,5 +314,10 @@ export function getActorOrder(adventure: Adventure, encounter: Encounter) {
     kind: 'monster' as const,
   }))
 
-  return heroes.flatMap((hero, index) => [hero, ...(monsters[index] ? [monsters[index]] : [])]).concat(monsters.slice(heroes.length))
+  return heroes
+    .flatMap((hero, index) => [
+      hero,
+      ...(monsters[index] ? [monsters[index]] : []),
+    ])
+    .concat(monsters.slice(heroes.length))
 }
