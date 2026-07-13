@@ -1,81 +1,59 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  Check,
+  ChevronLeft,
   ChevronRight,
   Dices,
   Heart,
   Minus,
   Plus,
-  RotateCcw,
+  Settings,
+  Shield,
   Sparkles,
   Swords,
+  X,
 } from 'lucide-react'
+import monsterGuardians from '../assets/monster-guardians.jpg'
 import monsterTriptych from '../assets/monster-triptych.jpg'
-import {
-  createAdventure,
-  dice,
-  getActorOrder,
-  getHeroStats,
-  heroClasses,
+import { createAdventure, dice, getHeroStats, heroClasses } from '../game/rules'
+import type {
+  Adventure,
+  Die,
+  Difficulty,
+  Heritage,
+  Hero,
+  HeroClassId,
+  Monster,
 } from '../game/rules'
-import type { Adventure, Die, Heritage, Hero, HeroClassId } from '../game/rules'
 
 export const Route = createFileRoute('/')({ component: App })
 
 const heritages: Heritage[] = ['Human', 'Elf', 'Dwarf', 'Halfling']
 const themes = ['Crystal Cave', 'Forgotten Castle', 'Mossy Ruins']
-
-function createHero(
-  id: string,
-  name: string,
-  classId: HeroClassId,
-  heritage: Heritage,
-): Hero {
-  return { id, name, classId, heritage }
-}
+type Stage = 'start' | 'heroes' | 'ready' | 'play'
+type SelectedCard =
+  { kind: 'monster'; id: string } | { kind: 'hero'; id: string }
 
 function App() {
-  const [heroes, setHeroes] = useState<Hero[]>([
-    createHero('hero-1', 'Ava', 'wizard', 'Elf'),
-  ])
-  const [name, setName] = useState('Max')
-  const [classId, setClassId] = useState<HeroClassId>('paladin')
-  const [heritage, setHeritage] = useState<Heritage>('Human')
+  const [stage, setStage] = useState<Stage>('start')
+  const [heroCount, setHeroCount] = useState(1)
   const [rooms, setRooms] = useState(4)
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(
-    'medium',
-  )
+  const [heroes, setHeroes] = useState<Hero[]>([])
+  const [draftName, setDraftName] = useState('')
+  const [draftClass, setDraftClass] = useState<HeroClassId | null>(null)
+  const [draftHeritage, setDraftHeritage] = useState<Heritage>('Human')
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium')
   const [diceKit, setDiceKit] = useState<Die[]>(['d6', 'd8'])
   const [mobs, setMobs] = useState(true)
   const [theme, setTheme] = useState(themes[0])
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [adventure, setAdventure] = useState<Adventure | null>(null)
   const [roomIndex, setRoomIndex] = useState(0)
   const [round, setRound] = useState(1)
-  const [actorIndex, setActorIndex] = useState(0)
+  const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null)
   const [health, setHealth] = useState<Record<string, number>>({})
-  const [rollPrompt, setRollPrompt] = useState(
-    'Pick an action, then roll a real die at the table.',
-  )
 
   const encounter = adventure?.encounters[roomIndex]
-  const actors =
-    adventure && encounter ? getActorOrder(adventure, encounter) : []
-  const actor = actors[actorIndex]
-
-  const addHero = () => {
-    const trimmedName = name.trim() || `Hero ${heroes.length + 1}`
-    setHeroes((current) => [
-      ...current,
-      createHero(`hero-${Date.now()}`, trimmedName, classId, heritage),
-    ])
-    setName('')
-  }
-
-  const removeHero = (heroId: string) => {
-    if (heroes.length > 1)
-      setHeroes((current) => current.filter((hero) => hero.id !== heroId))
-  }
 
   const toggleDie = (die: Die) => {
     setDiceKit((current) => {
@@ -87,6 +65,34 @@ function App() {
     })
   }
 
+  const beginHeroes = () => {
+    setHeroes([])
+    setDraftName('')
+    setDraftClass(null)
+    setDraftHeritage('Human')
+    setStage('heroes')
+  }
+
+  const saveHero = () => {
+    if (!draftClass) return
+    const number = heroes.length + 1
+    const hero: Hero = {
+      id: `hero-${number}-${Date.now()}`,
+      name: draftName.trim() || `Hero ${number}`,
+      classId: draftClass,
+      heritage: draftHeritage,
+    }
+    const next = [...heroes, hero]
+    setHeroes(next)
+    if (next.length === heroCount) {
+      setStage('ready')
+      return
+    }
+    setDraftName('')
+    setDraftClass(null)
+    setDraftHeritage('Human')
+  }
+
   const startAdventure = () => {
     const nextAdventure = createAdventure({
       heroes,
@@ -96,25 +102,24 @@ function App() {
       mobs,
       theme,
     })
-    const startingHealth: Record<string, number> = {}
-
+    const nextHealth: Record<string, number> = {}
     heroes.forEach((hero) => {
-      startingHealth[hero.id] = heroClasses[hero.classId].health
+      nextHealth[hero.id] = heroClasses[hero.classId].health
     })
     nextAdventure.encounters.forEach((nextEncounter) => {
       nextEncounter.monsters.forEach((monster) => {
-        startingHealth[monster.id] = monster.health
+        nextHealth[monster.id] = monster.health
       })
     })
-
     setAdventure(nextAdventure)
-    setHealth(startingHealth)
+    setHealth(nextHealth)
     setRoomIndex(0)
     setRound(1)
-    setActorIndex(0)
-    setRollPrompt(
-      `Room 1 is ready. Roll d20: ${nextAdventure.targetRoll}+ means your action works.`,
-    )
+    setSelectedCard({
+      kind: 'monster',
+      id: nextAdventure.encounters[0].monsters[0].id,
+    })
+    setStage('play')
   }
 
   const updateHealth = (id: string, amount: number) => {
@@ -124,528 +129,481 @@ function App() {
     }))
   }
 
-  const endTurn = () => {
-    if (!actors.length) return
-    const nextIndex = actorIndex + 1
-    if (nextIndex === actors.length) {
-      setActorIndex(0)
-      setRound((current) => current + 1)
-      setRollPrompt('A new combat round begins. Check who acts first.')
-      return
-    }
-    setActorIndex(nextIndex)
-    setRollPrompt(
-      'Choose an action, roll the die on the card, then apply the result.',
-    )
-  }
-
   const nextRoom = () => {
-    if (!adventure || roomIndex >= adventure.encounters.length - 1) return
-    setRoomIndex((current) => current + 1)
+    if (!adventure || roomIndex === adventure.encounters.length - 1) return
+    const nextIndex = roomIndex + 1
+    const nextEncounter = adventure.encounters[nextIndex]
+    setRoomIndex(nextIndex)
     setRound(1)
-    setActorIndex(0)
-    setRollPrompt(
-      `Room ${roomIndex + 2} is ready. Take a breath, then begin a new combat round.`,
-    )
+    setSelectedCard({ kind: 'monster', id: nextEncounter.monsters[0].id })
   }
 
-  if (!adventure || !encounter) {
-    return (
-      <main className="app-frame app-main">
-        <section className="welcome-panel rise-in">
-          <div>
-            <p className="eyebrow">Your real dice. Your real table.</p>
-            <h1>Make tonight's dungeon feel just right.</h1>
-            <p className="welcome-panel__copy">
-              Create heroes, pick the dice you actually want to use, and Auto DM
-              builds simple monster cards for your adventure.
-            </p>
-          </div>
-          <div className="welcome-panel__emblem" aria-hidden="true">
-            <Dices size={46} />
-          </div>
-        </section>
-
-        <section className="setup-grid" aria-label="Adventure setup">
-          <div
-            className="setup-card setup-card--heroes rise-in"
-            style={{ animationDelay: '90ms' }}
-          >
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Step 1</p>
-                <h2>Build your party</h2>
-              </div>
-              <span className="count-badge">
-                {heroes.length} hero{heroes.length === 1 ? '' : 'es'}
-              </span>
-            </div>
-            <div className="hero-list">
-              {heroes.map((hero) => {
-                const heroClass = heroClasses[hero.classId]
-                return (
-                  <article className="hero-chip" key={hero.id}>
-                    <span className="hero-chip__icon">{heroClass.icon}</span>
-                    <span>
-                      <strong>{hero.name}</strong>
-                      <small>
-                        {hero.heritage} {heroClass.label}
-                      </small>
-                    </span>
-                    <button
-                      className="icon-button"
-                      disabled={heroes.length === 1}
-                      onClick={() => removeHero(hero.id)}
-                      aria-label={`Remove ${hero.name}`}
-                    >
-                      ×
-                    </button>
-                  </article>
-                )
-              })}
-            </div>
-            <div className="hero-form">
-              <label>
-                <span>Hero name</span>
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="New hero"
-                />
-              </label>
-              <label>
-                <span>Class</span>
-                <select
-                  value={classId}
-                  onChange={(event) =>
-                    setClassId(event.target.value as HeroClassId)
-                  }
-                >
-                  {Object.entries(heroClasses).map(([id, heroClass]) => (
-                    <option key={id} value={id}>
-                      {heroClass.icon} {heroClass.label} - {heroClass.role}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>Heritage</span>
-                <select
-                  value={heritage}
-                  onChange={(event) =>
-                    setHeritage(event.target.value as Heritage)
-                  }
-                >
-                  {heritages.map((option) => (
-                    <option key={option}>{option}</option>
-                  ))}
-                </select>
-              </label>
-              <button className="secondary-button" onClick={addHero}>
-                <Plus size={17} /> Add hero
-              </button>
-            </div>
-          </div>
-
-          <div
-            className="setup-card rise-in"
-            style={{ animationDelay: '160ms' }}
-          >
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Step 2</p>
-                <h2>Choose the adventure</h2>
-              </div>
-            </div>
-            <div className="settings-stack">
-              <label>
-                <span>Dungeon feeling</span>
-                <select
-                  value={theme}
-                  onChange={(event) => setTheme(event.target.value)}
-                >
-                  {themes.map((option) => (
-                    <option key={option}>{option}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>
-                  Number of rooms <b>{rooms}</b>
-                </span>
-                <input
-                  type="range"
-                  min="3"
-                  max="7"
-                  value={rooms}
-                  onChange={(event) => setRooms(Number(event.target.value))}
-                />
-                <small>One final room is always the boss.</small>
-              </label>
-              <fieldset>
-                <legend>How hard should it feel?</legend>
-                <div className="choice-row">
-                  {(['easy', 'medium', 'hard'] as const).map((option) => (
-                    <button
-                      className={
-                        difficulty === option
-                          ? 'choice-card is-selected'
-                          : 'choice-card'
-                      }
-                      key={option}
-                      onClick={() => setDifficulty(option)}
-                    >
-                      <strong>{option}</strong>
-                      <small>
-                        {option === 'easy'
-                          ? 'A gentle start'
-                          : option === 'medium'
-                            ? 'Brave and balanced'
-                            : 'A big challenge'}
-                      </small>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              <label className="toggle-row">
-                <span>
-                  <b>Let monsters appear in mobs</b>
-                  <small>For example, three goblins in one room.</small>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={mobs}
-                  onChange={(event) => setMobs(event.target.checked)}
-                />
-                <i aria-hidden="true" />
-              </label>
-            </div>
-          </div>
-
-          <div
-            className="setup-card setup-card--dice rise-in"
-            style={{ animationDelay: '230ms' }}
-          >
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Step 3</p>
-                <h2>Pick your Dice Kit</h2>
-                <p>Auto DM will only use selected dice on cards.</p>
-              </div>
-            </div>
-            <div className="die-kit">
-              <span className="die-token die-token--fixed">
-                d20 <Check size={14} />
-              </span>
-              {dice.map((die) => (
-                <button
-                  className={
-                    diceKit.includes(die)
-                      ? 'die-token is-selected'
-                      : 'die-token'
-                  }
-                  onClick={() => toggleDie(die)}
-                  key={die}
-                >
-                  {die}
-                </button>
-              ))}
-            </div>
-            <p className="tip-box">
-              <Sparkles size={18} /> d20 decides if an action works. Your
-              selected dice decide damage and healing.
-            </p>
-            <button className="primary-button" onClick={startAdventure}>
-              Build my dungeon <ChevronRight size={19} />
-            </button>
-          </div>
-        </section>
-      </main>
-    )
-  }
+  const selected = getSelectedCard(selectedCard, adventure, encounter)
 
   return (
-    <main className="app-frame app-main adventure-view">
-      <section className="adventure-topline rise-in">
-        <div>
-          <p className="eyebrow">
-            {adventure.theme} · {difficulty} mode
-          </p>
-          <h1>{encounter.title}</h1>
-          <p>{encounter.intro}</p>
-        </div>
-        <button className="secondary-button" onClick={() => setAdventure(null)}>
-          <RotateCcw size={17} /> New adventure
-        </button>
-      </section>
-
-      <section className="room-trail" aria-label="Dungeon rooms">
-        {adventure.encounters.map((item, index) => (
-          <button
-            onClick={() => {
-              setRoomIndex(index)
-              setRound(1)
-              setActorIndex(0)
-            }}
-            className={
-              index === roomIndex
-                ? 'room-dot is-current'
-                : index < roomIndex
-                  ? 'room-dot is-complete'
-                  : 'room-dot'
-            }
-            key={item.id}
-          >
-            <span>{item.isBoss ? '★' : item.room}</span>
-            <small>{item.isBoss ? 'Boss' : `Room ${item.room}`}</small>
-          </button>
-        ))}
-      </section>
-
-      <section className="combat-layout">
-        <div className="combat-stage rise-in">
-          <div className="round-banner">
-            <span>Combat round</span>
-            <strong>{round}</strong>
-            <small>Roll d20: {adventure.targetRoll}+ works</small>
-          </div>
-          <div className="turn-card">
-            <p className="eyebrow">Acting now</p>
-            <div className="turn-card__name">
-              <span>{actor.icon}</span>
-              <div>
-                <h2>{actor.name}</h2>
-                <p>
-                  {actor.kind === 'hero'
-                    ? 'Choose an action.'
-                    : 'Choose a target, then roll for the monster.'}
-                </p>
-              </div>
-            </div>
-            {actor.kind === 'hero' ? (
-              <HeroActions
-                hero={adventure.heroes.find((hero) => hero.id === actor.id)!}
-                diceKit={adventure.diceKit}
-                targetRoll={adventure.targetRoll}
-                onPrompt={setRollPrompt}
-              />
-            ) : (
-              <MonsterActions
-                monster={encounter.monsters.find(
-                  (monster) => monster.id === actor.id,
-                )!}
-                targetRoll={adventure.targetRoll}
-                onPrompt={setRollPrompt}
-              />
-            )}
-            <div className="roll-callout">
-              <Dices size={20} />
-              <span>{rollPrompt}</span>
-            </div>
-            <button className="primary-button" onClick={endTurn}>
-              Finish turn <ChevronRight size={19} />
-            </button>
-          </div>
-        </div>
-
-        <aside
-          className="combat-sidebar rise-in"
-          style={{ animationDelay: '80ms' }}
+    <main
+      className={
+        stage === 'play' ? 'game-shell game-shell--play' : 'game-shell'
+      }
+    >
+      {stage !== 'play' && (
+        <button
+          className="corner-settings"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open settings"
         >
-          <div className="sidebar-heading">
-            <div>
-              <p className="eyebrow">The heroes</p>
-              <h2>Keep everyone in the story</h2>
-            </div>
-          </div>
-          {adventure.heroes.map((hero) => (
-            <HealthCard
-              key={hero.id}
-              icon={heroClasses[hero.classId].icon}
-              name={hero.name}
-              subtitle={`${hero.heritage} ${heroClasses[hero.classId].label}`}
-              health={health[hero.id] ?? 0}
-              maxHealth={heroClasses[hero.classId].health}
-              onChange={(amount) => updateHealth(hero.id, amount)}
-            />
-          ))}
-        </aside>
-      </section>
-
-      <section
-        className="monster-section rise-in"
-        style={{ animationDelay: '150ms' }}
-      >
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Monster cards</p>
-            <h2>What the table needs right now</h2>
-          </div>
-          <span className="count-badge">
-            {encounter.monsters.length} foe
-            {encounter.monsters.length === 1 ? '' : 's'}
-          </span>
-        </div>
-        <div className="monster-grid">
-          {encounter.monsters.map((monster) => (
-            <MonsterCard
-              key={monster.id}
-              monster={monster}
-              health={health[monster.id] ?? 0}
-              onChange={(amount) => updateHealth(monster.id, amount)}
-            />
-          ))}
-        </div>
-        <div className="room-next">
-          <p>
-            {roomIndex === adventure.encounters.length - 1
-              ? 'The final boss is here. Tell the ending your table earns.'
-              : 'When the room feels complete, move deeper into the dungeon.'}
-          </p>
-          {roomIndex < adventure.encounters.length - 1 && (
-            <button className="secondary-button" onClick={nextRoom}>
-              Go to room {roomIndex + 2} <ChevronRight size={17} />
-            </button>
-          )}
-        </div>
-      </section>
+          <Settings size={21} />
+        </button>
+      )}
+      {stage === 'start' && (
+        <StartScreen
+          heroCount={heroCount}
+          rooms={rooms}
+          onHeroCount={setHeroCount}
+          onRooms={setRooms}
+          onContinue={beginHeroes}
+        />
+      )}
+      {stage === 'heroes' && (
+        <HeroScreen
+          current={heroes.length + 1}
+          total={heroCount}
+          name={draftName}
+          classId={draftClass}
+          heritage={draftHeritage}
+          onName={setDraftName}
+          onClass={setDraftClass}
+          onHeritage={setDraftHeritage}
+          onBack={() => setStage('start')}
+          onContinue={saveHero}
+        />
+      )}
+      {stage === 'ready' && (
+        <ReadyScreen
+          heroes={heroes}
+          rooms={rooms}
+          theme={theme}
+          onBack={() => setStage('heroes')}
+          onStart={startAdventure}
+        />
+      )}
+      {stage === 'play' && adventure && encounter && selected && (
+        <PlayScreen
+          adventure={adventure}
+          encounter={encounter}
+          roomIndex={roomIndex}
+          round={round}
+          selected={selected}
+          health={health}
+          onSelect={setSelectedCard}
+          onHealth={updateHealth}
+          onRound={() => setRound((current) => current + 1)}
+          onNextRoom={nextRoom}
+          onEndAdventure={() => {
+            setAdventure(null)
+            setSelectedCard(null)
+            setStage('start')
+          }}
+        />
+      )}
+      {settingsOpen && (
+        <SettingsPanel
+          difficulty={difficulty}
+          diceKit={diceKit}
+          mobs={mobs}
+          theme={theme}
+          onDifficulty={setDifficulty}
+          onToggleDie={toggleDie}
+          onMobs={setMobs}
+          onTheme={setTheme}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
     </main>
   )
 }
 
-function HeroActions({
+function StartScreen({
+  heroCount,
+  rooms,
+  onHeroCount,
+  onRooms,
+  onContinue,
+}: {
+  heroCount: number
+  rooms: number
+  onHeroCount: (value: number) => void
+  onRooms: (value: number) => void
+  onContinue: () => void
+}) {
+  return (
+    <section className="setup-screen">
+      <div className="setup-heading">
+        <p className="kicker">A real-dice dungeon helper</p>
+        <h1>Set the table.</h1>
+        <p>Make a quick dungeon, then use the cards while you play together.</p>
+      </div>
+      <div className="count-grid">
+        <CounterCard
+          label="Heroes"
+          value={heroCount}
+          note="players at the table"
+          onChange={onHeroCount}
+          min={1}
+          max={4}
+        />
+        <CounterCard
+          label="Rooms"
+          value={rooms}
+          note="the last room is the boss"
+          onChange={onRooms}
+          min={3}
+          max={7}
+        />
+      </div>
+      <button className="primary-cta" onClick={onContinue}>
+        Create the heroes <ChevronRight />
+      </button>
+    </section>
+  )
+}
+
+function CounterCard({
+  label,
+  value,
+  note,
+  onChange,
+  min,
+  max,
+}: {
+  label: string
+  value: number
+  note: string
+  onChange: (value: number) => void
+  min: number
+  max: number
+}) {
+  return (
+    <article className="counter-card">
+      <p>{label}</p>
+      <div>
+        <button
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value === min}
+          aria-label={`Decrease ${label}`}
+        >
+          <Minus />
+        </button>
+        <strong>{value}</strong>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value === max}
+          aria-label={`Increase ${label}`}
+        >
+          <Plus />
+        </button>
+      </div>
+      <small>{note}</small>
+    </article>
+  )
+}
+
+function HeroScreen({
+  current,
+  total,
+  name,
+  classId,
+  heritage,
+  onName,
+  onClass,
+  onHeritage,
+  onBack,
+  onContinue,
+}: {
+  current: number
+  total: number
+  name: string
+  classId: HeroClassId | null
+  heritage: Heritage
+  onName: (value: string) => void
+  onClass: (value: HeroClassId) => void
+  onHeritage: (value: Heritage) => void
+  onBack: () => void
+  onContinue: () => void
+}) {
+  return (
+    <section className="setup-screen hero-screen">
+      <div className="step-line">
+        <button className="back-button" onClick={onBack}>
+          <ChevronLeft /> Back
+        </button>
+        <span>
+          Hero {current} of {total}
+        </span>
+      </div>
+      <div className="setup-heading">
+        <p className="kicker">Choose a role</p>
+        <h1>Who is this hero?</h1>
+      </div>
+      <div className="class-grid">
+        {Object.entries(heroClasses).map(([id, heroClass]) => (
+          <button
+            key={id}
+            className={
+              classId === id ? 'class-choice is-selected' : 'class-choice'
+            }
+            onClick={() => onClass(id as HeroClassId)}
+          >
+            <span>{heroClass.icon}</span>
+            <strong>{heroClass.label}</strong>
+            <small>{heroClass.role}</small>
+          </button>
+        ))}
+      </div>
+      <div className="hero-details">
+        <label>
+          Hero name
+          <input
+            value={name}
+            onChange={(event) => onName(event.target.value)}
+            placeholder={`Hero ${current}`}
+          />
+        </label>
+        <fieldset>
+          <legend>Heritage</legend>
+          <div className="heritage-row">
+            {heritages.map((item) => (
+              <button
+                key={item}
+                className={heritage === item ? 'is-selected' : ''}
+                onClick={() => onHeritage(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+      <button className="primary-cta" disabled={!classId} onClick={onContinue}>
+        {current === total ? 'Review the party' : 'Next hero'} <ChevronRight />
+      </button>
+    </section>
+  )
+}
+
+function ReadyScreen({
+  heroes,
+  rooms,
+  theme,
+  onBack,
+  onStart,
+}: {
+  heroes: Hero[]
+  rooms: number
+  theme: string
+  onBack: () => void
+  onStart: () => void
+}) {
+  return (
+    <section className="setup-screen ready-screen">
+      <button className="back-button" onClick={onBack}>
+        <ChevronLeft /> Back
+      </button>
+      <div className="setup-heading">
+        <p className="kicker">Adventure ready</p>
+        <h1>Bring your dice.</h1>
+        <p>
+          {rooms} rooms in the {theme}. The final room holds the boss.
+        </p>
+      </div>
+      <div className="party-review">
+        {heroes.map((hero) => (
+          <article key={hero.id}>
+            <span>{heroClasses[hero.classId].icon}</span>
+            <div>
+              <strong>{hero.name}</strong>
+              <small>
+                {hero.heritage} {heroClasses[hero.classId].label}
+              </small>
+            </div>
+            <b>{heroClasses[hero.classId].health} HP</b>
+          </article>
+        ))}
+      </div>
+      <button className="play-cta" onClick={onStart}>
+        <Dices size={31} />
+        <span>Play the dungeon</span>
+        <small>Build the monster cards</small>
+      </button>
+    </section>
+  )
+}
+
+function PlayScreen({
+  adventure,
+  encounter,
+  roomIndex,
+  round,
+  selected,
+  health,
+  onSelect,
+  onHealth,
+  onRound,
+  onNextRoom,
+  onEndAdventure,
+}: {
+  adventure: Adventure
+  encounter: Adventure['encounters'][number]
+  roomIndex: number
+  round: number
+  selected: ReturnType<typeof getSelectedCard>
+  health: Record<string, number>
+  onSelect: (card: SelectedCard) => void
+  onHealth: (id: string, amount: number) => void
+  onRound: () => void
+  onNextRoom: () => void
+  onEndAdventure: () => void
+}) {
+  const [confirmEnding, setConfirmEnding] = useState(false)
+  if (!selected) return null
+  const card =
+    selected.kind === 'hero' ? (
+      <HeroCard
+        hero={selected.hero}
+        diceKit={adventure.diceKit}
+        health={health[selected.hero.id]}
+        onHealth={onHealth}
+      />
+    ) : (
+      <MonsterCard
+        monster={selected.monster}
+        health={health[selected.monster.id]}
+        onHealth={onHealth}
+        targetRoll={adventure.targetRoll}
+      />
+    )
+  return (
+    <section className="play-screen">
+      <header className="play-status">
+        <span>
+          Room {roomIndex + 1} / {adventure.encounters.length}
+        </span>
+        <span className="play-status__brand">Auto DM</span>
+        <span>Round {round}</span>
+      </header>
+      <div className="card-stage">{card}</div>
+      <div className="play-actions">
+        <button className="round-button" onClick={onRound}>
+          Next combat round
+        </button>
+        {roomIndex < adventure.encounters.length - 1 && (
+          <button className="next-room" onClick={onNextRoom}>
+            Next room <ChevronRight />
+          </button>
+        )}
+        <button
+          className={
+            confirmEnding ? 'end-game-button is-confirming' : 'end-game-button'
+          }
+          onClick={() => {
+            if (confirmEnding) {
+              onEndAdventure()
+              return
+            }
+            setConfirmEnding(true)
+          }}
+        >
+          {confirmEnding ? 'End now' : 'End'}
+        </button>
+      </div>
+      <nav
+        className="card-switcher"
+        aria-label="Review current encounter and heroes"
+      >
+        <div className="switcher-group">
+          <span>Foes</span>
+          {encounter.monsters.map((monster) => (
+            <button
+              key={monster.id}
+              className={
+                selected.kind === 'monster' &&
+                selected.monster.id === monster.id
+                  ? 'is-active'
+                  : ''
+              }
+              onClick={() => onSelect({ kind: 'monster', id: monster.id })}
+            >
+              {monster.icon}
+              <small>{monster.name.replace(/ [0-9]+$/, '')}</small>
+            </button>
+          ))}
+        </div>
+        <div className="switcher-group">
+          <span>Heroes</span>
+          {adventure.heroes.map((hero) => (
+            <button
+              key={hero.id}
+              className={
+                selected.kind === 'hero' && selected.hero.id === hero.id
+                  ? 'is-active'
+                  : ''
+              }
+              onClick={() => onSelect({ kind: 'hero', id: hero.id })}
+            >
+              {heroClasses[hero.classId].icon}
+              <small>{hero.name}</small>
+            </button>
+          ))}
+        </div>
+      </nav>
+    </section>
+  )
+}
+
+function HeroCard({
   hero,
   diceKit,
-  targetRoll,
-  onPrompt,
+  health,
+  onHealth,
 }: {
   hero: Hero
   diceKit: Die[]
-  targetRoll: number
-  onPrompt: (message: string) => void
+  health: number
+  onHealth: (id: string, amount: number) => void
 }) {
   const stats = getHeroStats(hero, diceKit)
   return (
-    <div className="action-grid">
-      <button
-        onClick={() =>
-          onPrompt(
-            `Standard attack: roll d20. ${targetRoll}+ hits, then roll ${stats.damageDie} for damage.`,
-          )
-        }
-      >
-        <Swords size={18} />
-        <span>
-          <b>Standard attack</b>
-          <small>d20, then {stats.damageDie}</small>
-        </span>
-      </button>
-      <button
-        onClick={() =>
-          onPrompt(`${stats.label}'s special move: ${stats.action}`)
-        }
-      >
-        <Sparkles size={18} />
-        <span>
-          <b>Signature move</b>
-          <small>{stats.action}</small>
-        </span>
-      </button>
-      <button
-        onClick={() =>
-          onPrompt(
-            'Use an item: read the item card, then follow its die instruction.',
-          )
-        }
-      >
-        <Heart size={18} />
-        <span>
-          <b>Use an item</b>
-          <small>Potions, shields, and tools</small>
-        </span>
-      </button>
-    </div>
-  )
-}
-
-function MonsterActions({
-  monster,
-  targetRoll,
-  onPrompt,
-}: {
-  monster: Adventure['encounters'][number]['monsters'][number]
-  targetRoll: number
-  onPrompt: (message: string) => void
-}) {
-  return (
-    <div className="action-grid">
-      <button
-        onClick={() =>
-          onPrompt(
-            `${monster.action}: pick a hero, roll d20. ${targetRoll}+ hits, then roll ${monster.damageDie}.`,
-          )
-        }
-      >
-        <Swords size={18} />
-        <span>
-          <b>{monster.action}</b>
-          <small>d20, then {monster.damageDie}</small>
-        </span>
-      </button>
-      <button onClick={() => onPrompt(monster.special)}>
-        <Sparkles size={18} />
-        <span>
-          <b>Special move</b>
-          <small>{monster.special}</small>
-        </span>
-      </button>
-    </div>
-  )
-}
-
-function HealthCard({
-  icon,
-  name,
-  subtitle,
-  health,
-  maxHealth,
-  onChange,
-}: {
-  icon: string
-  name: string
-  subtitle: string
-  health: number
-  maxHealth: number
-  onChange: (amount: number) => void
-}) {
-  return (
-    <article className="health-card">
-      <span className="health-card__icon">{icon}</span>
-      <div className="health-card__copy">
-        <strong>{name}</strong>
-        <small>{subtitle}</small>
-        <div className="health-meter">
-          <span
-            style={{
-              width: `${Math.max(0, Math.min(100, (health / maxHealth) * 100))}%`,
-            }}
-          />
-        </div>
+    <article className="game-card hero-card">
+      <div className="card-ribbon">HERO</div>
+      <div className="hero-card__art">
+        <span>{stats.icon}</span>
       </div>
-      <div className="health-controls">
-        <button
-          onClick={() => onChange(-1)}
-          aria-label={`Reduce ${name} health`}
-        >
-          <Minus size={14} />
-        </button>
-        <b>{health}</b>
-        <button
-          onClick={() => onChange(1)}
-          aria-label={`Increase ${name} health`}
-        >
-          <Plus size={14} />
-        </button>
+      <CardTitle
+        name={hero.name}
+        subtitle={`${hero.heritage} ${stats.label}`}
+        health={health}
+        maxHealth={stats.health}
+        onHealth={(amount) => onHealth(hero.id, amount)}
+      />
+      <div className="card-rule">
+        <span>
+          <Swords /> Standard attack
+        </span>
+        <p>
+          Roll d20. On a hit, roll <b>{stats.damageDie}</b> for damage.
+        </p>
+      </div>
+      <div className="card-rule">
+        <span>
+          <Sparkles /> Signature move
+        </span>
+        <p>{stats.action}</p>
+      </div>
+      <div className="card-rule">
+        <span>
+          <Shield /> Counter action
+        </span>
+        <p>Block, dodge, or use an item when a monster attacks.</p>
       </div>
     </article>
   )
@@ -654,74 +612,216 @@ function HealthCard({
 function MonsterCard({
   monster,
   health,
-  onChange,
+  onHealth,
+  targetRoll,
 }: {
-  monster: Adventure['encounters'][number]['monsters'][number]
+  monster: Monster
   health: number
-  onChange: (amount: number) => void
+  onHealth: (id: string, amount: number) => void
+  targetRoll: number
 }) {
-  const position =
-    monster.art === 'goblin'
-      ? 'left center'
-      : monster.art === 'skeleton'
-        ? 'center center'
-        : monster.art === 'slime'
-          ? 'right center'
-          : 'center center'
   return (
-    <article
-      className={
-        monster.isBoss ? 'monster-card monster-card--boss' : 'monster-card'
-      }
-    >
+    <article className="game-card monster-card">
+      <div className="card-ribbon">{monster.isBoss ? 'BOSS' : 'MONSTER'}</div>
       <div
-        className="monster-card__art"
-        style={{
-          backgroundImage: `url(${monsterTriptych})`,
-          backgroundPosition: position,
-        }}
-      >
-        <span>{monster.icon}</span>
-      </div>
-      <div className="monster-card__body">
-        <div className="monster-card__title">
-          <div>
-            <p>{monster.isBoss ? 'Final boss' : 'Monster'}</p>
-            <h3>{monster.name}</h3>
-          </div>
-          <div className="mini-health">
-            <Heart size={14} fill="currentColor" /> {health}
-          </div>
-        </div>
-        <div className="monster-card__move">
-          <span>On its turn</span>
+        className={`monster-art monster-art--${getPortrait(monster).position}`}
+        style={{ backgroundImage: `url(${getPortrait(monster).source})` }}
+      />
+      <CardTitle
+        name={monster.name}
+        subtitle={`${monster.isBoss ? 'Final challenge' : 'Dungeon foe'} · ${monster.damageDie} damage`}
+        health={health}
+        maxHealth={monster.health}
+        onHealth={(amount) => onHealth(monster.id, amount)}
+      />
+      <div className="card-rule">
+        <span>
+          <Swords /> Attack
+        </span>
+        <p>
           <b>{monster.action}</b>
-          <small>
-            Roll d20 to hit, then roll <strong>{monster.damageDie}</strong>.
-          </small>
-        </div>
-        <div className="monster-card__special">
-          <Sparkles size={16} />
-          <span>{monster.special}</span>
-        </div>
-        <div className="monster-card__health">
-          <button
-            onClick={() => onChange(-1)}
-            aria-label={`Reduce ${monster.name} health`}
-          >
-            <Minus size={14} />
-          </button>
-          <span>
-            Health <b>{health}</b>
-          </span>
-          <button
-            onClick={() => onChange(1)}
-            aria-label={`Increase ${monster.name} health`}
-          >
-            <Plus size={14} />
-          </button>
-        </div>
+          <br />
+          Roll d20. {targetRoll}+ hits, then roll {monster.damageDie}.
+        </p>
+      </div>
+      <div className="card-rule">
+        <span>
+          <Sparkles /> Special rule
+        </span>
+        <p>{monster.special}</p>
       </div>
     </article>
   )
+}
+
+function CardTitle({
+  name,
+  subtitle,
+  health,
+  maxHealth,
+  onHealth,
+}: {
+  name: string
+  subtitle: string
+  health: number
+  maxHealth: number
+  onHealth: (amount: number) => void
+}) {
+  return (
+    <div className="card-title">
+      <div>
+        <h2>{name}</h2>
+        <p>{subtitle}</p>
+      </div>
+      <div className="health-control">
+        <button
+          onClick={() => onHealth(-1)}
+          aria-label={`Lower ${name} health`}
+        >
+          <Minus />
+        </button>
+        <strong>
+          <Heart size={14} /> {health}/{maxHealth}
+        </strong>
+        <button onClick={() => onHealth(1)} aria-label={`Raise ${name} health`}>
+          <Plus />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SettingsPanel({
+  difficulty,
+  diceKit,
+  mobs,
+  theme,
+  onDifficulty,
+  onToggleDie,
+  onMobs,
+  onTheme,
+  onClose,
+}: {
+  difficulty: Difficulty
+  diceKit: Die[]
+  mobs: boolean
+  theme: string
+  onDifficulty: (value: Difficulty) => void
+  onToggleDie: (die: Die) => void
+  onMobs: (value: boolean) => void
+  onTheme: (value: string) => void
+  onClose: () => void
+}) {
+  return (
+    <div
+      className="settings-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Adventure settings"
+    >
+      <aside className="settings-panel">
+        <header>
+          <div>
+            <p className="kicker">Adventure settings</p>
+            <h2>Set the rules</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close settings">
+            <X />
+          </button>
+        </header>
+        <label>
+          Dungeon feeling
+          <select
+            value={theme}
+            onChange={(event) => onTheme(event.target.value)}
+          >
+            {themes.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
+          </select>
+        </label>
+        <fieldset>
+          <legend>Difficulty</legend>
+          <div className="setting-choice-row">
+            {(['easy', 'medium', 'hard'] as const).map((item) => (
+              <button
+                key={item}
+                className={difficulty === item ? 'is-selected' : ''}
+                onClick={() => onDifficulty(item)}
+              >
+                <b>{item}</b>
+                <small>
+                  {item === 'easy'
+                    ? 'Gentle start'
+                    : item === 'medium'
+                      ? 'Balanced'
+                      : 'Big challenge'}
+                </small>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Dice kit</legend>
+          <p className="setting-help">
+            The d20 always decides if actions work. Choose the dice you own for
+            damage and healing.
+          </p>
+          <div className="dice-row">
+            <span>d20</span>
+            {dice.map((die) => (
+              <button
+                key={die}
+                className={diceKit.includes(die) ? 'is-selected' : ''}
+                onClick={() => onToggleDie(die)}
+              >
+                {die}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <label className="settings-toggle">
+          <input
+            type="checkbox"
+            checked={mobs}
+            onChange={(event) => onMobs(event.target.checked)}
+          />
+          <span>
+            <b>Monster mobs</b>
+            <small>Let up to three smaller monsters appear together.</small>
+          </span>
+        </label>
+      </aside>
+    </div>
+  )
+}
+
+function getSelectedCard(
+  selected: SelectedCard | null,
+  adventure: Adventure | null,
+  encounter: Adventure['encounters'][number] | undefined,
+) {
+  if (!selected || !adventure || !encounter) return null
+  if (selected.kind === 'hero') {
+    const hero = adventure.heroes.find((item) => item.id === selected.id)
+    return hero ? { kind: 'hero' as const, hero } : null
+  }
+  const monster =
+    encounter.monsters.find((item) => item.id === selected.id) ??
+    encounter.monsters[0]
+  return { kind: 'monster' as const, monster }
+}
+
+function getPortrait(monster: Monster) {
+  if (monster.art === 'goblin')
+    return { source: monsterTriptych, position: 'left' }
+  if (monster.art === 'skeleton')
+    return { source: monsterTriptych, position: 'center' }
+  if (monster.art === 'slime')
+    return { source: monsterTriptych, position: 'right' }
+  if (monster.name.includes('Wolf'))
+    return { source: monsterGuardians, position: 'left' }
+  if (monster.name.includes('Gargoyle') || monster.name.includes('Mimic'))
+    return { source: monsterGuardians, position: 'center' }
+  return { source: monsterGuardians, position: 'right' }
 }

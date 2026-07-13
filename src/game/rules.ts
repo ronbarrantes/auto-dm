@@ -20,6 +20,7 @@ export type AdventureOptions = {
   diceKit: Die[]
   mobs: boolean
   theme: string
+  seed?: number
 }
 
 export type Monster = {
@@ -160,12 +161,132 @@ const monsterDeck = [
     mob: true,
   },
   {
+    name: 'Bat Swarm',
+    icon: '🦇',
+    health: 3,
+    damageDie: 'd4' as Die,
+    action: 'Fluttering bite',
+    special: 'On a 16+, the target cannot Dodge the next attack.',
+    art: 'shadow' as const,
+    mob: true,
+  },
+  {
+    name: 'Kobold Tinkerer',
+    icon: '🧨',
+    health: 4,
+    damageDie: 'd4' as Die,
+    action: 'Sling stone',
+    special: 'Once per combat, set a trap. The next hero to miss loses 1 health.',
+    art: 'goblin' as const,
+    mob: true,
+  },
+  {
+    name: 'Mushroom Sprite',
+    icon: '🍄',
+    health: 4,
+    damageDie: 'd4' as Die,
+    action: 'Spore puff',
+    special: 'On a 16+, the target rolls one die size smaller next turn.',
+    art: 'slime' as const,
+    mob: true,
+  },
+  {
+    name: 'Fire Beetle',
+    icon: '🪲',
+    health: 4,
+    damageDie: 'd6' as Die,
+    action: 'Hot shell bump',
+    special: 'The first hero to hit it takes 1 damage too.',
+    art: 'shadow' as const,
+    mob: true,
+  },
+  {
+    name: 'Rat King',
+    icon: '🐀',
+    health: 5,
+    damageDie: 'd6' as Die,
+    action: 'Tangled tails',
+    special: 'If it hits, the target cannot use an item next turn.',
+    art: 'shadow' as const,
+    mob: true,
+  },
+  {
+    name: 'Web Spider',
+    icon: '🕷️',
+    health: 5,
+    damageDie: 'd6' as Die,
+    action: 'Web toss',
+    special: 'On a 16+, the target must roll 12+ to attack next turn.',
+    art: 'shadow' as const,
+    mob: true,
+  },
+  {
+    name: 'Crystal Crab',
+    icon: '🦀',
+    health: 6,
+    damageDie: 'd6' as Die,
+    action: 'Shiny claw snap',
+    special: 'Block the first hit each combat.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Ghost Lantern',
+    icon: '🏮',
+    health: 5,
+    damageDie: 'd6' as Die,
+    action: 'Chilling glow',
+    special: 'On a 16+, every hero loses 1 health.',
+    art: 'skeleton' as const,
+    mob: false,
+  },
+  {
     name: 'Stone Gargoyle',
     icon: '🗿',
     health: 7,
     damageDie: 'd8' as Die,
     action: 'Stone claw',
     special: 'The first hit only deals 1 damage.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Cave Troll',
+    icon: '👹',
+    health: 8,
+    damageDie: 'd8' as Die,
+    action: 'Club stomp',
+    special: 'After it takes 3 damage in one turn, it loses its next attack.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Shadow Knight',
+    icon: '🗡️',
+    health: 7,
+    damageDie: 'd8' as Die,
+    action: 'Midnight slash',
+    special: 'Dodge the first attack each combat.',
+    art: 'skeleton' as const,
+    mob: false,
+  },
+  {
+    name: 'Bog Witch',
+    icon: '🧙',
+    health: 6,
+    damageDie: 'd8' as Die,
+    action: 'Bubble blast',
+    special: 'On a 16+, the target cannot use a Magic Attack next turn.',
+    art: 'slime' as const,
+    mob: false,
+  },
+  {
+    name: 'Clockwork Sentry',
+    icon: '⚙️',
+    health: 7,
+    damageDie: 'd8' as Die,
+    action: 'Gear punch',
+    special: 'The hero who hurt it last must be its next target.',
     art: 'shadow' as const,
     mob: false,
   },
@@ -197,6 +318,22 @@ const bosses = [
     damageDie: 'd10' as Die,
     action: 'Charging horn',
     special: 'On a hit, the target loses their next reaction.',
+  },
+  {
+    name: 'Moonlit Lich',
+    icon: '🧙‍♂️',
+    health: 16,
+    damageDie: 'd10' as Die,
+    action: 'Moon beam',
+    special: 'Once per combat, every hero loses 1 health.',
+  },
+  {
+    name: 'Iron Golem',
+    icon: '🤖',
+    health: 18,
+    damageDie: 'd12' as Die,
+    action: 'Iron fist',
+    special: 'The first two hits against it each deal only 1 damage.',
   },
 ] as const
 
@@ -230,6 +367,7 @@ export function getHeroStats(hero: Hero, diceKit: Die[]) {
 
 export function createAdventure(options: AdventureOptions): Adventure {
   const rule = getDifficultyRule(options.difficulty)
+  const seed = options.seed ?? Math.floor(Math.random() * monsterDeck.length)
   const partyPower = options.heroes.reduce(
     (total, hero) => total + heroClasses[hero.classId].health,
     0,
@@ -240,7 +378,7 @@ export function createAdventure(options: AdventureOptions): Adventure {
 
     if (isBoss) {
       const boss =
-        bosses[(options.rooms + options.heroes.length) % bosses.length]
+        bosses[(seed + options.rooms + options.heroes.length) % bosses.length]
       return {
         id: `room-${room}`,
         room,
@@ -264,10 +402,10 @@ export function createAdventure(options: AdventureOptions): Adventure {
     }
 
     const source =
-      monsterDeck[(room + options.heroes.length - 1) % monsterDeck.length]
+      monsterDeck[(seed + room + options.heroes.length - 1) % monsterDeck.length]
     const canMob = options.mobs && source.mob && room > 1
     const monsterCount =
-      canMob && (room + options.heroes.length) % 3 === 0 ? 3 : 1
+      canMob && (seed + room + options.heroes.length) % 3 === 0 ? 3 : 1
     const monsters = Array.from(
       { length: monsterCount },
       (_monster, monsterIndex) => ({
