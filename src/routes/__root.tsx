@@ -58,6 +58,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFoundPage,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -74,5 +75,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function NotFoundPage() {
+  return (
+    <main className="not-found-page">
+      <p className="kicker">Wrong passage</p>
+      <h1>This room is not on the map.</h1>
+      <a href="/">Return to Auto DM</a>
+    </main>
   )
 }
