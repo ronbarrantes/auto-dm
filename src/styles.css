@@ -355,7 +355,7 @@ legend {
   grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
   gap: 0.65rem;
   height: 100%;
-  padding: 4.6rem 0.8rem 1rem;
+  padding: 3.7rem 0.8rem 0.8rem;
 }
 .play-top {
   display: flex;
@@ -407,14 +407,13 @@ legend {
 .card-stage {
   display: grid;
   min-height: 0;
-  place-items: center;
+  place-items: start center;
   overflow: hidden;
 }
 .game-card {
   display: grid;
-  grid-template-rows: auto minmax(128px, 1.3fr) auto auto auto auto;
+  grid-template-rows: auto auto auto auto auto auto;
   width: min(100%, 440px);
-  max-height: 100%;
   overflow: hidden;
   color: #1c211d;
   border: 7px solid #d7c6a1;
@@ -435,10 +434,11 @@ legend {
   background: #7a3c2f;
 }
 .monster-art {
-  min-height: 128px;
+  aspect-ratio: 4 / 3;
   border-bottom: 3px solid #26372f;
   background-repeat: no-repeat;
-  background-size: 300% 100%;
+  /* Each asset is a three-panel sheet. Keep the selected panel proportional. */
+  background-size: 300% auto;
   background-color: #1b2925;
 }
 .monster-art--left {
@@ -452,7 +452,7 @@ legend {
 }
 .hero-card__art {
   display: grid;
-  min-height: 128px;
+  aspect-ratio: 4 / 3;
   place-items: center;
   border-bottom: 3px solid #26372f;
   background: #a4ba8e;
@@ -768,5 +768,25 @@ legend {
   }
   .game-card {
     width: min(440px, 100%);
+  }
+}
+
+@media (max-height: 760px) {
+  .play-screen {
+    gap: 0.4rem;
+    padding-top: 3.35rem;
+  }
+  .encounter-note {
+    display: none;
+  }
+  .monster-art,
+  .hero-card__art {
+    aspect-ratio: 16 / 7;
+  }
+  .card-rule {
+    padding-block: 0.32rem;
+  }
+  .card-action {
+    margin-block: 0.45rem;
   }
 }
