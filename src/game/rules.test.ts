@@ -38,6 +38,17 @@ describe('Auto DM encounter generator', () => {
     ).toBe(true)
   })
 
+  it('can start an adventure with every regular monster', () => {
+    const startingMonsters = new Set(
+      Array.from({ length: 18 }, (_, seed) => {
+        const adventure = createAdventure({ ...options, seed })
+        return adventure.encounters[0].monsters[0].name
+      }),
+    )
+
+    expect(startingMonsters).toHaveLength(18)
+  })
+
   it('picks the closest available die when a card asks for an unavailable die', () => {
     expect(chooseDie('d12', ['d4', 'd8'])).toBe('d8')
     expect(chooseDie('d4', ['d6', 'd8'])).toBe('d6')
@@ -66,6 +77,7 @@ describe('Auto DM encounter generator', () => {
       heroes: [options.heroes[0]],
       rooms: 5,
       mobs: true,
+      seed: 0,
     }
     const adventure = createAdventure(mobOptions)
 
