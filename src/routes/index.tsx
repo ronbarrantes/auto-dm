@@ -52,9 +52,6 @@ function App() {
   const [round, setRound] = useState(1)
   const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null)
   const [health, setHealth] = useState<Record<string, number>>({})
-  const [prompt, setPrompt] = useState(
-    'Choose an action, then roll at the table.',
-  )
 
   const encounter = adventure?.encounters[roomIndex]
 
@@ -122,7 +119,6 @@ function App() {
       kind: 'monster',
       id: nextAdventure.encounters[0].monsters[0].id,
     })
-    setPrompt(`Roll d20. ${nextAdventure.targetRoll}+ means an action works.`)
     setStage('play')
   }
 
@@ -140,9 +136,6 @@ function App() {
     setRoomIndex(nextIndex)
     setRound(1)
     setSelectedCard({ kind: 'monster', id: nextEncounter.monsters[0].id })
-    setPrompt(
-      `Room ${nextIndex + 1}: roll d20. ${adventure.targetRoll}+ means an action works.`,
-    )
   }
 
   const selected = getSelectedCard(selectedCard, adventure, encounter)
@@ -200,10 +193,8 @@ function App() {
           round={round}
           selected={selected}
           health={health}
-          prompt={prompt}
           onSelect={setSelectedCard}
           onHealth={updateHealth}
-          onPrompt={setPrompt}
           onRound={() => setRound((current) => current + 1)}
           onNextRoom={nextRoom}
         />
@@ -448,10 +439,8 @@ function PlayScreen({
   round,
   selected,
   health,
-  prompt,
   onSelect,
   onHealth,
-  onPrompt,
   onRound,
   onNextRoom,
 }: {
@@ -461,10 +450,8 @@ function PlayScreen({
   round: number
   selected: ReturnType<typeof getSelectedCard>
   health: Record<string, number>
-  prompt: string
   onSelect: (card: SelectedCard) => void
   onHealth: (id: string, amount: number) => void
-  onPrompt: (message: string) => void
   onRound: () => void
   onNextRoom: () => void
 }) {
@@ -476,37 +463,24 @@ function PlayScreen({
         diceKit={adventure.diceKit}
         health={health[selected.hero.id]}
         onHealth={onHealth}
-        onPrompt={onPrompt}
       />
     ) : (
       <MonsterCard
         monster={selected.monster}
         health={health[selected.monster.id]}
         onHealth={onHealth}
-        onPrompt={onPrompt}
         targetRoll={adventure.targetRoll}
       />
     )
   return (
     <section className="play-screen">
-      <header className="play-top">
-        <div>
-          <p>
-            Room {roomIndex + 1} / {adventure.encounters.length}
-          </p>
-          <h1>{encounter.isBoss ? 'Final boss' : encounter.title}</h1>
-        </div>
-        <div className="round-chip">
-          <span>Round</span>
-          <b>{round}</b>
-        </div>
+      <header className="play-status">
+        <span>
+          Room {roomIndex + 1} / {adventure.encounters.length}
+        </span>
+        <span>Round {round}</span>
       </header>
-      <div className="encounter-note">{encounter.intro}</div>
       <div className="card-stage">{card}</div>
-      <p className="table-prompt">
-        <Dices size={18} />
-        {prompt}
-      </p>
       <div className="play-actions">
         <button className="round-button" onClick={onRound}>
           Next combat round
@@ -566,13 +540,11 @@ function HeroCard({
   diceKit,
   health,
   onHealth,
-  onPrompt,
 }: {
   hero: Hero
   diceKit: Die[]
   health: number
   onHealth: (id: string, amount: number) => void
-  onPrompt: (message: string) => void
 }) {
   const stats = getHeroStats(hero, diceKit)
   return (
@@ -608,16 +580,6 @@ function HeroCard({
         </span>
         <p>Block, dodge, or use an item when a monster attacks.</p>
       </div>
-      <button
-        className="card-action"
-        onClick={() =>
-          onPrompt(
-            `${hero.name}: roll d20. On ${stats.damageDie}, apply the result to the selected foe.`,
-          )
-        }
-      >
-        Use {hero.name}'s card
-      </button>
     </article>
   )
 }
@@ -626,13 +588,11 @@ function MonsterCard({
   monster,
   health,
   onHealth,
-  onPrompt,
   targetRoll,
 }: {
   monster: Monster
   health: number
   onHealth: (id: string, amount: number) => void
-  onPrompt: (message: string) => void
   targetRoll: number
 }) {
   return (
@@ -665,16 +625,6 @@ function MonsterCard({
         </span>
         <p>{monster.special}</p>
       </div>
-      <button
-        className="card-action"
-        onClick={() =>
-          onPrompt(
-            `${monster.name}: choose a hero. Roll d20, then ${monster.damageDie} if it hits.`,
-          )
-        }
-      >
-        Use monster card
-      </button>
     </article>
   )
 }
