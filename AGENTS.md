@@ -17,7 +17,8 @@
 - Never commit, push, or deploy directly from `main`.
 - Every change starts from a branch named `agent/<short-description>`.
 - Each completed numbered milestone in `PLAN.md` requires at least one focused commit. More commits are fine when they create useful review checkpoints.
-- Push the branch and open a draft pull request targeting `main` when a milestone or agreed review batch is complete.
+- Work autonomously through the agreed scope. Do not pause for interim review between milestones unless there is a genuine blocker, a production action, or a material scope decision that cannot be safely inferred.
+- Keep one draft pull request targeting `main` updated for the whole agreed workstream. Push after meaningful commits and when the implementation is ready for review.
 - The user reviews and merges pull requests. Do not merge a pull request unless explicitly asked.
 - Before opening a pull request, run the relevant validation commands and record the result in the PR description.
 - Preserve unrelated changes in a dirty worktree; stage only files that belong to the current milestone.

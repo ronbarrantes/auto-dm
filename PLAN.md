@@ -9,9 +9,8 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 ## Working Agreement
 
 - Keep this document current as decisions are made. Mark completed work with `[x]` and add a short outcome note below the milestone.
-- Treat each numbered milestone as a stopping point for review.
 - Make at least one focused commit for every completed milestone.
-- Push a branch and open a draft PR to `main` after each milestone or another explicitly agreed review batch.
+- Treat each numbered milestone as a commit and testing checkpoint, not an automatic pause. Complete the agreed workstream autonomously and keep one draft PR to `main` updated for the user to review and merge.
 - The user reviews and merges PRs. Do not merge or deploy without explicit instruction.
 - Build and test the actual tabletop flow with short play sessions before expanding the rules.
 
