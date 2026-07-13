@@ -478,6 +478,7 @@ function PlayScreen({
         <span>
           Room {roomIndex + 1} / {adventure.encounters.length}
         </span>
+        <span className="play-status__brand">Auto DM</span>
         <span>Round {round}</span>
       </header>
       <div className="card-stage">{card}</div>

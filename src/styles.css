@@ -364,14 +364,26 @@ legend {
   padding: 1.05rem 0.8rem 0.8rem;
 }
 .play-status {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   padding-right: 3.5rem;
   color: #d9a84e;
   font-family: 'DM Mono', monospace;
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+.play-status > :last-child {
+  text-align: right;
+}
+.play-status__brand {
+  color: #f3e5c8;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 .card-stage {
   display: grid;
@@ -381,8 +393,9 @@ legend {
 }
 .game-card {
   display: grid;
-  grid-template-rows: auto auto auto auto auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
   width: min(100%, 440px);
+  height: 100%;
   overflow: hidden;
   color: #1c211d;
   border: 7px solid #d7c6a1;
@@ -403,7 +416,7 @@ legend {
   background: #7a3c2f;
 }
 .monster-art {
-  aspect-ratio: 4 / 3;
+  min-height: 12rem;
   border-bottom: 3px solid #26372f;
   background-repeat: no-repeat;
   /* Each asset is a three-panel sheet. Keep the selected panel proportional. */
@@ -421,7 +434,7 @@ legend {
 }
 .hero-card__art {
   display: grid;
-  aspect-ratio: 4 / 3;
+  min-height: 12rem;
   place-items: center;
   border-bottom: 3px solid #26372f;
   background: #a4ba8e;
@@ -721,7 +734,7 @@ legend {
   }
   .monster-art,
   .hero-card__art {
-    aspect-ratio: 16 / 7;
+    min-height: 8rem;
   }
   .card-rule {
     padding-block: 0.32rem;
