@@ -32,8 +32,13 @@ button:disabled {
   z-index: 10;
   top: 0;
   left: 0;
+  width: 100%;
   padding: 1.25rem 1.35rem;
+  border-bottom: 1px solid rgb(107 127 115 / 0.3);
+  background: rgb(17 24 23 / 0.72);
+  backdrop-filter: blur(14px);
   pointer-events: none;
+  -webkit-backdrop-filter: blur(14px);
 }
 .app-header__brand {
   display: flex;
