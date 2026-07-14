@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   Dices,
@@ -13,9 +14,10 @@ import {
   Swords,
   X,
 } from 'lucide-react'
-import monsterGuardians from '../assets/monster-guardians.jpg'
-import monsterTriptych from '../assets/monster-triptych.jpg'
 import { createAdventure, dice, getHeroStats, heroClasses } from '../game/rules'
+import { useGameStore } from '../stores/game-store'
+import type { SelectedCard } from '../stores/game-store'
+import { useSettingsStore } from '../stores/settings-store'
 import type {
   Adventure,
   Die,
@@ -30,47 +32,58 @@ export const Route = createFileRoute('/')({ component: App })
 
 const heritages: Heritage[] = ['Human', 'Elf', 'Dwarf', 'Halfling']
 const themes = ['Crystal Cave', 'Forgotten Castle', 'Mossy Ruins']
-type Stage = 'start' | 'heroes' | 'ready' | 'play'
-type SelectedCard =
-  { kind: 'monster'; id: string } | { kind: 'hero'; id: string }
 
 function App() {
-  const [stage, setStage] = useState<Stage>('start')
-  const [heroCount, setHeroCount] = useState(1)
-  const [rooms, setRooms] = useState(4)
-  const [heroes, setHeroes] = useState<Hero[]>([])
-  const [draftName, setDraftName] = useState('')
-  const [draftClass, setDraftClass] = useState<HeroClassId | null>(null)
-  const [draftHeritage, setDraftHeritage] = useState<Heritage>('Human')
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium')
-  const [diceKit, setDiceKit] = useState<Die[]>(['d6', 'd8'])
-  const [mobs, setMobs] = useState(true)
-  const [theme, setTheme] = useState(themes[0])
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const stage = useGameStore((state) => state.stage)
+  const heroCount = useGameStore((state) => state.heroCount)
+  const rooms = useGameStore((state) => state.rooms)
+  const heroes = useGameStore((state) => state.heroes)
+  const draftName = useGameStore((state) => state.draftName)
+  const draftClass = useGameStore((state) => state.draftClass)
+  const draftHeritage = useGameStore((state) => state.draftHeritage)
+  const adventure = useGameStore((state) => state.adventure)
+  const roomIndex = useGameStore((state) => state.roomIndex)
+  const round = useGameStore((state) => state.round)
+  const selectedCard = useGameStore((state) => state.selectedCard)
+  const health = useGameStore((state) => state.health)
+  const beginHeroSetup = useGameStore((state) => state.beginHeroSetup)
+  const resetGame = useGameStore((state) => state.resetGame)
+  const setStage = useGameStore((state) => state.setStage)
+  const setHeroCount = useGameStore((state) => state.setHeroCount)
+  const setRooms = useGameStore((state) => state.setRooms)
+  const setHeroes = useGameStore((state) => state.setHeroes)
+  const setDraftName = useGameStore((state) => state.setDraftName)
+  const setDraftClass = useGameStore((state) => state.setDraftClass)
+  const setDraftHeritage = useGameStore((state) => state.setDraftHeritage)
+  const setAdventure = useGameStore((state) => state.setAdventure)
+  const setRoomIndex = useGameStore((state) => state.setRoomIndex)
+  const setRound = useGameStore((state) => state.setRound)
+  const setSelectedCard = useGameStore((state) => state.setSelectedCard)
+  const setHealth = useGameStore((state) => state.setHealth)
+  const updateHealth = useGameStore((state) => state.updateHealth)
+  const difficulty = useSettingsStore((state) => state.difficulty)
+  const diceKit = useSettingsStore((state) => state.diceKit)
+  const mobs = useSettingsStore((state) => state.mobs)
+  const theme = useSettingsStore((state) => state.theme)
+  const setDifficulty = useSettingsStore((state) => state.setDifficulty)
+  const toggleDie = useSettingsStore((state) => state.toggleDie)
+  const setMobs = useSettingsStore((state) => state.setMobs)
+  const setTheme = useSettingsStore((state) => state.setTheme)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [adventure, setAdventure] = useState<Adventure | null>(null)
-  const [roomIndex, setRoomIndex] = useState(0)
-  const [round, setRound] = useState(1)
-  const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null)
-  const [health, setHealth] = useState<Record<string, number>>({})
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false)
 
   const encounter = adventure?.encounters[roomIndex]
 
-  const toggleDie = (die: Die) => {
-    setDiceKit((current) => {
-      if (current.includes(die))
-        return current.length > 1
-          ? current.filter((item) => item !== die)
-          : current
-      return [...current, die].sort((a, b) => dice.indexOf(a) - dice.indexOf(b))
-    })
-  }
+  useEffect(() => {
+    void Promise.all([
+      useGameStore.persist.rehydrate(),
+      useSettingsStore.persist.rehydrate(),
+    ]).then(() => setHasHydrated(true))
+  }, [])
 
   const beginHeroes = () => {
-    setHeroes([])
-    setDraftName('')
-    setDraftClass(null)
-    setDraftHeritage('Human')
-    setStage('heroes')
+    beginHeroSetup()
   }
 
   const saveHero = () => {
@@ -122,13 +135,6 @@ function App() {
     setStage('play')
   }
 
-  const updateHealth = (id: string, amount: number) => {
-    setHealth((current) => ({
-      ...current,
-      [id]: Math.max(0, (current[id] ?? 0) + amount),
-    }))
-  }
-
   const nextRoom = () => {
     if (!adventure || roomIndex === adventure.encounters.length - 1) return
     const nextIndex = roomIndex + 1
@@ -139,6 +145,8 @@ function App() {
   }
 
   const selected = getSelectedCard(selectedCard, adventure, encounter)
+
+  if (!hasHydrated) return null
 
   return (
     <main
@@ -162,6 +170,7 @@ function App() {
           onHeroCount={setHeroCount}
           onRooms={setRooms}
           onContinue={beginHeroes}
+          onHowToPlay={() => setHowToPlayOpen(true)}
         />
       )}
       {stage === 'heroes' && (
@@ -197,12 +206,11 @@ function App() {
           health={health}
           onSelect={setSelectedCard}
           onHealth={updateHealth}
-          onRound={() => setRound((current) => current + 1)}
+          onRound={() => setRound(round + 1)}
           onNextRoom={nextRoom}
           onEndAdventure={() => {
-            setAdventure(null)
-            setSelectedCard(null)
-            setStage('start')
+            resetGame()
+            useGameStore.persist.clearStorage()
           }}
         />
       )}
@@ -219,6 +227,7 @@ function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+      {howToPlayOpen && <HowToPlay onClose={() => setHowToPlayOpen(false)} />}
     </main>
   )
 }
@@ -229,12 +238,14 @@ function StartScreen({
   onHeroCount,
   onRooms,
   onContinue,
+  onHowToPlay,
 }: {
   heroCount: number
   rooms: number
   onHeroCount: (value: number) => void
   onRooms: (value: number) => void
   onContinue: () => void
+  onHowToPlay: () => void
 }) {
   return (
     <section className="setup-screen">
@@ -258,13 +269,62 @@ function StartScreen({
           note="the last room is the boss"
           onChange={onRooms}
           min={3}
-          max={7}
+          max={12}
         />
       </div>
       <button className="primary-cta" onClick={onContinue}>
         Create the heroes <ChevronRight />
       </button>
+      <button className="how-to-play-button" onClick={onHowToPlay}>
+        <BookOpen size={18} /> How to play
+      </button>
     </section>
+  )
+}
+
+function HowToPlay({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="how-to-play-backdrop" role="dialog" aria-modal="true">
+      <section
+        className="how-to-play-panel"
+        aria-labelledby="how-to-play-title"
+      >
+        <header>
+          <div>
+            <p className="kicker">Quick rules</p>
+            <h2 id="how-to-play-title">How to play</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close how to play">
+            <X />
+          </button>
+        </header>
+        <ol>
+          <li>
+            <b>Make your heroes.</b> Choose a name and role, then start the
+            dungeon.
+          </li>
+          <li>
+            <b>On a hero attack:</b> roll a d20. Match or beat the monster’s
+            Defense. Then roll your damage die and lower its health.
+          </li>
+          <li>
+            <b>On a monster attack:</b> roll a d20. The dungeon difficulty tells
+            you what number hits a hero: Easy 9+, Medium 11+, Hard 13+.
+          </li>
+          <li>
+            <b>Use the cards.</b> Tap a hero or monster to read its move. Use
+            the plus and minus buttons to track health.
+          </li>
+          <li>
+            <b>Clear each room.</b> Move to the next room when you are ready.
+            Defeat the final boss to complete the adventure.
+          </li>
+        </ol>
+        <button className="primary-cta" onClick={onClose}>
+          Got it, let’s play <ChevronRight />
+        </button>
+      </section>
+    </div>
   )
 }
 
@@ -466,6 +526,11 @@ function PlayScreen({
 }) {
   const [confirmEnding, setConfirmEnding] = useState(false)
   if (!selected) return null
+  const finalRoomCleared =
+    roomIndex === adventure.encounters.length - 1 &&
+    encounter.monsters.every(
+      (monster) => (health[monster.id] ?? monster.health) === 0,
+    )
   const card =
     selected.kind === 'hero' ? (
       <HeroCard
@@ -499,6 +564,11 @@ function PlayScreen({
         {roomIndex < adventure.encounters.length - 1 && (
           <button className="next-room" onClick={onNextRoom}>
             Next room <ChevronRight />
+          </button>
+        )}
+        {finalRoomCleared && (
+          <button className="next-room" onClick={onEndAdventure}>
+            Complete adventure <ChevronRight />
           </button>
         )}
         <button
@@ -590,7 +660,8 @@ function HeroCard({
           <Swords /> Standard attack
         </span>
         <p>
-          Roll d20. On a hit, roll <b>{stats.damageDie}</b> for damage.
+          Roll d20. Match or beat the monster’s Defense, then roll{' '}
+          <b>{stats.damageDie}</b> for damage.
         </p>
       </div>
       <div className="card-rule">
@@ -624,24 +695,24 @@ function MonsterCard({
     <article className="game-card monster-card">
       <div className="card-ribbon">{monster.isBoss ? 'BOSS' : 'MONSTER'}</div>
       <div
-        className={`monster-art monster-art--${getPortrait(monster).position}`}
-        style={{ backgroundImage: `url(${getPortrait(monster).source})` }}
+        className={`monster-art ${monster.image.isSprite ? `monster-art--${monster.image.position}` : 'monster-art--single'}`}
+        style={{ backgroundImage: `url(${monster.image.source})` }}
       />
       <CardTitle
         name={monster.name}
-        subtitle={`${monster.isBoss ? 'Final challenge' : 'Dungeon foe'} · ${monster.damageDie} damage`}
+        subtitle={`${monster.isBoss ? 'Final challenge' : 'Dungeon foe'} · Defense ${monster.defense} · ${monster.damageDie} damage`}
         health={health}
         maxHealth={monster.health}
         onHealth={(amount) => onHealth(monster.id, amount)}
       />
       <div className="card-rule">
         <span>
-          <Swords /> Attack
+          <Swords /> Attack a hero
         </span>
         <p>
           <b>{monster.action}</b>
           <br />
-          Roll d20. {targetRoll}+ hits, then roll {monster.damageDie}.
+          Roll d20. {targetRoll}+ hits a hero, then roll {monster.damageDie}.
         </p>
       </div>
       <div className="card-rule">
@@ -810,18 +881,4 @@ function getSelectedCard(
     encounter.monsters.find((item) => item.id === selected.id) ??
     encounter.monsters[0]
   return { kind: 'monster' as const, monster }
-}
-
-function getPortrait(monster: Monster) {
-  if (monster.art === 'goblin')
-    return { source: monsterTriptych, position: 'left' }
-  if (monster.art === 'skeleton')
-    return { source: monsterTriptych, position: 'center' }
-  if (monster.art === 'slime')
-    return { source: monsterTriptych, position: 'right' }
-  if (monster.name.includes('Wolf'))
-    return { source: monsterGuardians, position: 'left' }
-  if (monster.name.includes('Gargoyle') || monster.name.includes('Mimic'))
-    return { source: monsterGuardians, position: 'center' }
-  return { source: monsterGuardians, position: 'right' }
 }

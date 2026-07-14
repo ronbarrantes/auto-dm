@@ -32,8 +32,13 @@ button:disabled {
   z-index: 10;
   top: 0;
   left: 0;
+  width: 100%;
   padding: 1.25rem 1.35rem;
+  border-bottom: 1px solid rgb(107 127 115 / 0.3);
+  background: rgb(17 24 23 / 0.52);
+  backdrop-filter: blur(14px);
   pointer-events: none;
+  -webkit-backdrop-filter: blur(14px);
 }
 .app-header__brand {
   display: flex;
@@ -222,6 +227,73 @@ p {
 .primary-cta:disabled {
   transform: none;
 }
+.how-to-play-button {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  color: #d9c18b;
+  border: 0;
+  background: transparent;
+  font-weight: 700;
+}
+.how-to-play-backdrop {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(7 10 9 / 0.72);
+}
+.how-to-play-panel {
+  width: min(100%, 34rem);
+  max-height: min(46rem, calc(100dvh - 2rem));
+  overflow-y: auto;
+  padding: 1.35rem;
+  color: #f3ead7;
+  border: 1px solid #536158;
+  border-radius: 10px;
+  background: #17211e;
+  box-shadow: 8px 10px 0 rgb(0 0 0 / 0.35);
+}
+.how-to-play-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+.how-to-play-panel h2 {
+  margin-bottom: 0;
+  font-family: 'Libre Baskerville', serif;
+}
+.how-to-play-panel header button {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #efe4ce;
+  border: 1px solid #536158;
+  border-radius: 5px;
+  background: transparent;
+}
+.how-to-play-panel ol {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.4rem 0;
+  padding-left: 1.5rem;
+  color: #d6dfd3;
+  line-height: 1.45;
+}
+.how-to-play-panel li::marker {
+  color: #e3b967;
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+}
+.how-to-play-panel b {
+  color: #fff5e3;
+}
 .step-line {
   display: flex;
   justify-content: space-between;
@@ -297,6 +369,7 @@ select {
   border: 1px solid #4d5b54;
   border-radius: 6px;
   background: #1b2723;
+  font-size: 1rem;
   outline: none;
 }
 input:focus,
@@ -444,11 +517,14 @@ legend {
 }
 .monster-art {
   min-height: 12rem;
-  border-bottom: 3px solid #26372f;
   background-repeat: no-repeat;
   /* Each asset is a three-panel sheet. Keep the selected panel proportional. */
   background-size: 300% auto;
   background-color: #1b2925;
+}
+.monster-art--single {
+  background-position: center;
+  background-size: cover;
 }
 .monster-art--left {
   background-position: left center;

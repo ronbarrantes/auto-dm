@@ -47,7 +47,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** The rules can be explained and played without the app by a child and an adult.
 
-**Current implementation:** The local prototype uses a `d20` success check (Easy 9+, Medium 11+, Hard 13+), followed by an enabled damage die. Each hero gets Standard Attack, Signature Move, and Use Item; monster cards have a default move and one special move. Table playtesting is still required before these rules are considered final.
+**Current implementation:** Each monster has a visible Defense number. A hero rolls a `d20` and meets or beats that Defense, then rolls an enabled damage die. Dungeon difficulty still sets the target for monster attacks (Easy 9+, Medium 11+, Hard 13+). Each hero gets Standard Attack, Signature Move, and Use Item; monster cards have a default move and one special move. A short in-app play guide explains the flow. Table playtesting is still required before these rules are considered final.
 
 ### 2. Define heroes and hero creation
 
@@ -71,7 +71,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** The app has a complete, understandable adventure-setup specification.
 
-**Current implementation:** The setup screen supports a party, 3-7 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
+**Current implementation:** The setup screen supports a party, 3-12 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
 
 ### 4. Design encounter balancing and generation
 
@@ -84,7 +84,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** Given the same setup, Auto DM can generate a complete dungeon with a defensible difficulty curve.
 
-**Current implementation:** The deterministic generator uses party health as a small strength signal, scales health by difficulty, avoids repeating the same monster in adjacent rooms, reserves a boss, and tests Dice Kit and mobs-off behavior. Balance values need real-table tuning.
+**Current implementation:** The deterministic generator draws from 36 regular monsters and 4 bosses, uses party health as a small strength signal, scales health by difficulty, avoids repeating the same monster in adjacent rooms, reserves a boss, and tests Dice Kit and mobs-off behavior. Balance values need real-table tuning.
 
 ### 5. Design the card system and tabletop flow
 
@@ -109,7 +109,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** One device can run a complete generated dungeon at a physical table.
 
-**Current implementation:** Complete for a local, single-device prototype. It intentionally does not persist adventures or synchronize between devices; that is Milestone 7.
+**Current implementation:** Complete for a local, single-device prototype. It persists settings and an unfinished adventure on that device, but does not synchronize between devices; that is Milestone 7.
 
 ### 7. Add shared sessions with Convex
 
