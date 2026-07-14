@@ -258,7 +258,7 @@ function StartScreen({
           note="the last room is the boss"
           onChange={onRooms}
           min={3}
-          max={7}
+          max={12}
         />
       </div>
       <button className="primary-cta" onClick={onContinue}>

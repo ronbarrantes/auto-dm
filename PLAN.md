@@ -71,7 +71,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** The app has a complete, understandable adventure-setup specification.
 
-**Current implementation:** The setup screen supports a party, 3-7 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
+**Current implementation:** The setup screen supports a party, 3-12 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
 
 ### 4. Design encounter balancing and generation
 
