@@ -33,7 +33,9 @@ button:disabled {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 1.25rem 1.35rem;
+  padding: calc(1.25rem + env(safe-area-inset-top))
+    calc(1.35rem + env(safe-area-inset-right)) 1.25rem
+    calc(1.35rem + env(safe-area-inset-left));
   border-bottom: 1px solid rgb(107 127 115 / 0.3);
   background: rgb(17 24 23 / 0.52);
   backdrop-filter: blur(14px);
@@ -90,8 +92,8 @@ body:has(.game-shell--play) .app-header {
 .corner-settings {
   position: fixed;
   z-index: 20;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  right: calc(0.75rem + env(safe-area-inset-right));
   display: grid;
   place-items: center;
   width: 2.65rem;
@@ -464,7 +466,10 @@ legend {
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: 0.65rem;
   height: 100%;
-  padding: 1.05rem 0.8rem 0.8rem;
+  padding: calc(1.05rem + env(safe-area-inset-top))
+    calc(0.8rem + env(safe-area-inset-right))
+    calc(0.8rem + env(safe-area-inset-bottom))
+    calc(0.8rem + env(safe-area-inset-left));
 }
 .play-status {
   display: grid;
@@ -726,7 +731,10 @@ legend {
   width: min(100%, 420px);
   height: 100%;
   overflow-y: auto;
-  padding: 2rem 1.2rem;
+  padding: calc(2rem + env(safe-area-inset-top))
+    calc(1.2rem + env(safe-area-inset-right))
+    calc(2rem + env(safe-area-inset-bottom))
+    calc(1.2rem + env(safe-area-inset-left));
   color: #f3ead7;
   border-left: 1px solid #536158;
   background: #17211e;
@@ -820,11 +828,13 @@ legend {
 }
 @media (min-width: 700px) {
   .app-header {
-    padding: 1.55rem 2rem;
+    padding: calc(1.55rem + env(safe-area-inset-top))
+      calc(2rem + env(safe-area-inset-right)) 1.55rem
+      calc(2rem + env(safe-area-inset-left));
   }
   .corner-settings {
-    top: 1.4rem;
-    right: 2rem;
+    top: calc(1.4rem + env(safe-area-inset-top));
+    right: calc(2rem + env(safe-area-inset-right));
   }
   .setup-screen {
     padding-inline: 2rem;
