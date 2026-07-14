@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   ChevronLeft,
@@ -16,6 +16,9 @@ import {
 import monsterGuardians from '../assets/monster-guardians.jpg'
 import monsterTriptych from '../assets/monster-triptych.jpg'
 import { createAdventure, dice, getHeroStats, heroClasses } from '../game/rules'
+import { useGameStore } from '../stores/game-store'
+import type { SelectedCard } from '../stores/game-store'
+import { useSettingsStore } from '../stores/settings-store'
 import type {
   Adventure,
   Die,
@@ -30,47 +33,57 @@ export const Route = createFileRoute('/')({ component: App })
 
 const heritages: Heritage[] = ['Human', 'Elf', 'Dwarf', 'Halfling']
 const themes = ['Crystal Cave', 'Forgotten Castle', 'Mossy Ruins']
-type Stage = 'start' | 'heroes' | 'ready' | 'play'
-type SelectedCard =
-  { kind: 'monster'; id: string } | { kind: 'hero'; id: string }
 
 function App() {
-  const [stage, setStage] = useState<Stage>('start')
-  const [heroCount, setHeroCount] = useState(1)
-  const [rooms, setRooms] = useState(4)
-  const [heroes, setHeroes] = useState<Hero[]>([])
-  const [draftName, setDraftName] = useState('')
-  const [draftClass, setDraftClass] = useState<HeroClassId | null>(null)
-  const [draftHeritage, setDraftHeritage] = useState<Heritage>('Human')
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium')
-  const [diceKit, setDiceKit] = useState<Die[]>(['d6', 'd8'])
-  const [mobs, setMobs] = useState(true)
-  const [theme, setTheme] = useState(themes[0])
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const stage = useGameStore((state) => state.stage)
+  const heroCount = useGameStore((state) => state.heroCount)
+  const rooms = useGameStore((state) => state.rooms)
+  const heroes = useGameStore((state) => state.heroes)
+  const draftName = useGameStore((state) => state.draftName)
+  const draftClass = useGameStore((state) => state.draftClass)
+  const draftHeritage = useGameStore((state) => state.draftHeritage)
+  const adventure = useGameStore((state) => state.adventure)
+  const roomIndex = useGameStore((state) => state.roomIndex)
+  const round = useGameStore((state) => state.round)
+  const selectedCard = useGameStore((state) => state.selectedCard)
+  const health = useGameStore((state) => state.health)
+  const beginHeroSetup = useGameStore((state) => state.beginHeroSetup)
+  const resetGame = useGameStore((state) => state.resetGame)
+  const setStage = useGameStore((state) => state.setStage)
+  const setHeroCount = useGameStore((state) => state.setHeroCount)
+  const setRooms = useGameStore((state) => state.setRooms)
+  const setHeroes = useGameStore((state) => state.setHeroes)
+  const setDraftName = useGameStore((state) => state.setDraftName)
+  const setDraftClass = useGameStore((state) => state.setDraftClass)
+  const setDraftHeritage = useGameStore((state) => state.setDraftHeritage)
+  const setAdventure = useGameStore((state) => state.setAdventure)
+  const setRoomIndex = useGameStore((state) => state.setRoomIndex)
+  const setRound = useGameStore((state) => state.setRound)
+  const setSelectedCard = useGameStore((state) => state.setSelectedCard)
+  const setHealth = useGameStore((state) => state.setHealth)
+  const updateHealth = useGameStore((state) => state.updateHealth)
+  const difficulty = useSettingsStore((state) => state.difficulty)
+  const diceKit = useSettingsStore((state) => state.diceKit)
+  const mobs = useSettingsStore((state) => state.mobs)
+  const theme = useSettingsStore((state) => state.theme)
+  const setDifficulty = useSettingsStore((state) => state.setDifficulty)
+  const toggleDie = useSettingsStore((state) => state.toggleDie)
+  const setMobs = useSettingsStore((state) => state.setMobs)
+  const setTheme = useSettingsStore((state) => state.setTheme)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [adventure, setAdventure] = useState<Adventure | null>(null)
-  const [roomIndex, setRoomIndex] = useState(0)
-  const [round, setRound] = useState(1)
-  const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null)
-  const [health, setHealth] = useState<Record<string, number>>({})
 
   const encounter = adventure?.encounters[roomIndex]
 
-  const toggleDie = (die: Die) => {
-    setDiceKit((current) => {
-      if (current.includes(die))
-        return current.length > 1
-          ? current.filter((item) => item !== die)
-          : current
-      return [...current, die].sort((a, b) => dice.indexOf(a) - dice.indexOf(b))
-    })
-  }
+  useEffect(() => {
+    void Promise.all([
+      useGameStore.persist.rehydrate(),
+      useSettingsStore.persist.rehydrate(),
+    ]).then(() => setHasHydrated(true))
+  }, [])
 
   const beginHeroes = () => {
-    setHeroes([])
-    setDraftName('')
-    setDraftClass(null)
-    setDraftHeritage('Human')
-    setStage('heroes')
+    beginHeroSetup()
   }
 
   const saveHero = () => {
@@ -122,13 +135,6 @@ function App() {
     setStage('play')
   }
 
-  const updateHealth = (id: string, amount: number) => {
-    setHealth((current) => ({
-      ...current,
-      [id]: Math.max(0, (current[id] ?? 0) + amount),
-    }))
-  }
-
   const nextRoom = () => {
     if (!adventure || roomIndex === adventure.encounters.length - 1) return
     const nextIndex = roomIndex + 1
@@ -139,6 +145,8 @@ function App() {
   }
 
   const selected = getSelectedCard(selectedCard, adventure, encounter)
+
+  if (!hasHydrated) return null
 
   return (
     <main
@@ -197,12 +205,11 @@ function App() {
           health={health}
           onSelect={setSelectedCard}
           onHealth={updateHealth}
-          onRound={() => setRound((current) => current + 1)}
+          onRound={() => setRound(round + 1)}
           onNextRoom={nextRoom}
           onEndAdventure={() => {
-            setAdventure(null)
-            setSelectedCard(null)
-            setStage('start')
+            resetGame()
+            useGameStore.persist.clearStorage()
           }}
         />
       )}
@@ -466,6 +473,11 @@ function PlayScreen({
 }) {
   const [confirmEnding, setConfirmEnding] = useState(false)
   if (!selected) return null
+  const finalRoomCleared =
+    roomIndex === adventure.encounters.length - 1 &&
+    encounter.monsters.every(
+      (monster) => (health[monster.id] ?? monster.health) === 0,
+    )
   const card =
     selected.kind === 'hero' ? (
       <HeroCard
@@ -499,6 +511,11 @@ function PlayScreen({
         {roomIndex < adventure.encounters.length - 1 && (
           <button className="next-room" onClick={onNextRoom}>
             Next room <ChevronRight />
+          </button>
+        )}
+        {finalRoomCleared && (
+          <button className="next-room" onClick={onEndAdventure}>
+            Complete adventure <ChevronRight />
           </button>
         )}
         <button

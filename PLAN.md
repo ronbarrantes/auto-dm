@@ -109,7 +109,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** One device can run a complete generated dungeon at a physical table.
 
-**Current implementation:** Complete for a local, single-device prototype. It intentionally does not persist adventures or synchronize between devices; that is Milestone 7.
+**Current implementation:** Complete for a local, single-device prototype. It persists settings and an unfinished adventure on that device, but does not synchronize between devices; that is Milestone 7.
 
 ### 7. Add shared sessions with Convex
 
