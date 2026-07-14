@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   Dices,
@@ -72,6 +73,7 @@ function App() {
   const setMobs = useSettingsStore((state) => state.setMobs)
   const setTheme = useSettingsStore((state) => state.setTheme)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false)
 
   const encounter = adventure?.encounters[roomIndex]
 
@@ -170,6 +172,7 @@ function App() {
           onHeroCount={setHeroCount}
           onRooms={setRooms}
           onContinue={beginHeroes}
+          onHowToPlay={() => setHowToPlayOpen(true)}
         />
       )}
       {stage === 'heroes' && (
@@ -226,6 +229,7 @@ function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+      {howToPlayOpen && <HowToPlay onClose={() => setHowToPlayOpen(false)} />}
     </main>
   )
 }
@@ -236,12 +240,14 @@ function StartScreen({
   onHeroCount,
   onRooms,
   onContinue,
+  onHowToPlay,
 }: {
   heroCount: number
   rooms: number
   onHeroCount: (value: number) => void
   onRooms: (value: number) => void
   onContinue: () => void
+  onHowToPlay: () => void
 }) {
   return (
     <section className="setup-screen">
@@ -271,7 +277,56 @@ function StartScreen({
       <button className="primary-cta" onClick={onContinue}>
         Create the heroes <ChevronRight />
       </button>
+      <button className="how-to-play-button" onClick={onHowToPlay}>
+        <BookOpen size={18} /> How to play
+      </button>
     </section>
+  )
+}
+
+function HowToPlay({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="how-to-play-backdrop" role="dialog" aria-modal="true">
+      <section
+        className="how-to-play-panel"
+        aria-labelledby="how-to-play-title"
+      >
+        <header>
+          <div>
+            <p className="kicker">Quick rules</p>
+            <h2 id="how-to-play-title">How to play</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close how to play">
+            <X />
+          </button>
+        </header>
+        <ol>
+          <li>
+            <b>Make your heroes.</b> Choose a name and role, then start the
+            dungeon.
+          </li>
+          <li>
+            <b>On a hero attack:</b> roll a d20. Match or beat the monster’s
+            Defense. Then roll your damage die and lower its health.
+          </li>
+          <li>
+            <b>On a monster attack:</b> roll a d20. The dungeon difficulty tells
+            you what number hits a hero: Easy 9+, Medium 11+, Hard 13+.
+          </li>
+          <li>
+            <b>Use the cards.</b> Tap a hero or monster to read its move. Use
+            the plus and minus buttons to track health.
+          </li>
+          <li>
+            <b>Clear each room.</b> Move to the next room when you are ready.
+            Defeat the final boss to complete the adventure.
+          </li>
+        </ol>
+        <button className="primary-cta" onClick={onClose}>
+          Got it, let’s play <ChevronRight />
+        </button>
+      </section>
+    </div>
   )
 }
 
@@ -607,7 +662,8 @@ function HeroCard({
           <Swords /> Standard attack
         </span>
         <p>
-          Roll d20. On a hit, roll <b>{stats.damageDie}</b> for damage.
+          Roll d20. Match or beat the monster’s Defense, then roll{' '}
+          <b>{stats.damageDie}</b> for damage.
         </p>
       </div>
       <div className="card-rule">
@@ -646,19 +702,19 @@ function MonsterCard({
       />
       <CardTitle
         name={monster.name}
-        subtitle={`${monster.isBoss ? 'Final challenge' : 'Dungeon foe'} · ${monster.damageDie} damage`}
+        subtitle={`${monster.isBoss ? 'Final challenge' : 'Dungeon foe'} · Defense ${monster.defense} · ${monster.damageDie} damage`}
         health={health}
         maxHealth={monster.health}
         onHealth={(amount) => onHealth(monster.id, amount)}
       />
       <div className="card-rule">
         <span>
-          <Swords /> Attack
+          <Swords /> Attack a hero
         </span>
         <p>
           <b>{monster.action}</b>
           <br />
-          Roll d20. {targetRoll}+ hits, then roll {monster.damageDie}.
+          Roll d20. {targetRoll}+ hits a hero, then roll {monster.damageDie}.
         </p>
       </div>
       <div className="card-rule">

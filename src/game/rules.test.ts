@@ -26,6 +26,7 @@ describe('Auto DM encounter generator', () => {
     expect(
       monsters.every((monster) => options.diceKit.includes(monster.damageDie)),
     ).toBe(true)
+    expect(monsters.every((monster) => monster.defense >= 8)).toBe(true)
   })
 
   it('keeps encounters to one monster when mobs are disabled', () => {

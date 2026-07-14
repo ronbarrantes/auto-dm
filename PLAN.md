@@ -47,7 +47,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** The rules can be explained and played without the app by a child and an adult.
 
-**Current implementation:** The local prototype uses a `d20` success check (Easy 9+, Medium 11+, Hard 13+), followed by an enabled damage die. Each hero gets Standard Attack, Signature Move, and Use Item; monster cards have a default move and one special move. Table playtesting is still required before these rules are considered final.
+**Current implementation:** Each monster has a visible Defense number. A hero rolls a `d20` and meets or beats that Defense, then rolls an enabled damage die. Dungeon difficulty still sets the target for monster attacks (Easy 9+, Medium 11+, Hard 13+). Each hero gets Standard Attack, Signature Move, and Use Item; monster cards have a default move and one special move. A short in-app play guide explains the flow. Table playtesting is still required before these rules are considered final.
 
 ### 2. Define heroes and hero creation
 

@@ -28,6 +28,7 @@ export type Monster = {
   name: string
   icon: string
   health: number
+  defense: number
   damageDie: Die
   action: string
   special: string
@@ -124,6 +125,7 @@ const monsterDeck = [
     name: 'Goblin Scout',
     icon: '👺',
     health: 3,
+    defense: 9,
     damageDie: 'd4' as Die,
     action: 'Scamper and poke',
     special: 'Dodge the first attack each combat.',
@@ -134,6 +136,7 @@ const monsterDeck = [
     name: 'Rattling Skeleton',
     icon: '💀',
     health: 4,
+    defense: 10,
     damageDie: 'd6' as Die,
     action: 'Rusty sword swing',
     special: 'Block once per combat.',
@@ -144,6 +147,7 @@ const monsterDeck = [
     name: 'Blue Slime',
     icon: '🫧',
     health: 5,
+    defense: 8,
     damageDie: 'd4' as Die,
     action: 'Sticky bounce',
     special: 'On a 16+, stick to a hero. Their next attack rolls once.',
@@ -154,6 +158,7 @@ const monsterDeck = [
     name: 'Cave Wolf',
     icon: '🐺',
     health: 5,
+    defense: 10,
     damageDie: 'd6' as Die,
     action: 'Quick bite',
     special: 'If a friend is nearby, roll twice and keep the bigger result.',
@@ -164,6 +169,7 @@ const monsterDeck = [
     name: 'Bat Swarm',
     icon: '🦇',
     health: 3,
+    defense: 9,
     damageDie: 'd4' as Die,
     action: 'Fluttering bite',
     special: 'On a 16+, the target cannot Dodge the next attack.',
@@ -174,9 +180,11 @@ const monsterDeck = [
     name: 'Kobold Tinkerer',
     icon: '🧨',
     health: 4,
+    defense: 9,
     damageDie: 'd4' as Die,
     action: 'Sling stone',
-    special: 'Once per combat, set a trap. The next hero to miss loses 1 health.',
+    special:
+      'Once per combat, set a trap. The next hero to miss loses 1 health.',
     art: 'goblin' as const,
     mob: true,
   },
@@ -184,6 +192,7 @@ const monsterDeck = [
     name: 'Mushroom Sprite',
     icon: '🍄',
     health: 4,
+    defense: 8,
     damageDie: 'd4' as Die,
     action: 'Spore puff',
     special: 'On a 16+, the target rolls one die size smaller next turn.',
@@ -194,6 +203,7 @@ const monsterDeck = [
     name: 'Fire Beetle',
     icon: '🪲',
     health: 4,
+    defense: 11,
     damageDie: 'd6' as Die,
     action: 'Hot shell bump',
     special: 'The first hero to hit it takes 1 damage too.',
@@ -204,6 +214,7 @@ const monsterDeck = [
     name: 'Rat King',
     icon: '🐀',
     health: 5,
+    defense: 10,
     damageDie: 'd6' as Die,
     action: 'Tangled tails',
     special: 'If it hits, the target cannot use an item next turn.',
@@ -214,6 +225,7 @@ const monsterDeck = [
     name: 'Web Spider',
     icon: '🕷️',
     health: 5,
+    defense: 11,
     damageDie: 'd6' as Die,
     action: 'Web toss',
     special: 'On a 16+, the target must roll 12+ to attack next turn.',
@@ -224,6 +236,7 @@ const monsterDeck = [
     name: 'Crystal Crab',
     icon: '🦀',
     health: 6,
+    defense: 12,
     damageDie: 'd6' as Die,
     action: 'Shiny claw snap',
     special: 'Block the first hit each combat.',
@@ -234,6 +247,7 @@ const monsterDeck = [
     name: 'Ghost Lantern',
     icon: '🏮',
     health: 5,
+    defense: 10,
     damageDie: 'd6' as Die,
     action: 'Chilling glow',
     special: 'On a 16+, every hero loses 1 health.',
@@ -244,6 +258,7 @@ const monsterDeck = [
     name: 'Stone Gargoyle',
     icon: '🗿',
     health: 7,
+    defense: 12,
     damageDie: 'd8' as Die,
     action: 'Stone claw',
     special: 'The first hit only deals 1 damage.',
@@ -254,6 +269,7 @@ const monsterDeck = [
     name: 'Cave Troll',
     icon: '👹',
     health: 8,
+    defense: 11,
     damageDie: 'd8' as Die,
     action: 'Club stomp',
     special: 'After it takes 3 damage in one turn, it loses its next attack.',
@@ -264,6 +280,7 @@ const monsterDeck = [
     name: 'Shadow Knight',
     icon: '🗡️',
     health: 7,
+    defense: 13,
     damageDie: 'd8' as Die,
     action: 'Midnight slash',
     special: 'Dodge the first attack each combat.',
@@ -274,6 +291,7 @@ const monsterDeck = [
     name: 'Bog Witch',
     icon: '🧙',
     health: 6,
+    defense: 10,
     damageDie: 'd8' as Die,
     action: 'Bubble blast',
     special: 'On a 16+, the target cannot use a Magic Attack next turn.',
@@ -284,6 +302,7 @@ const monsterDeck = [
     name: 'Clockwork Sentry',
     icon: '⚙️',
     health: 7,
+    defense: 12,
     damageDie: 'd8' as Die,
     action: 'Gear punch',
     special: 'The hero who hurt it last must be its next target.',
@@ -294,6 +313,7 @@ const monsterDeck = [
     name: 'Treasure Mimic',
     icon: '📦',
     health: 6,
+    defense: 11,
     damageDie: 'd8' as Die,
     action: 'Surprise chomp',
     special: 'Its first attack gets +2 to the d20 roll.',
@@ -307,6 +327,7 @@ const bosses = [
     name: 'Young Ember Dragon',
     icon: '🐉',
     health: 14,
+    defense: 13,
     damageDie: 'd12' as Die,
     action: 'Flame breath',
     special: 'On a 16+, every hero takes 1 damage.',
@@ -315,6 +336,7 @@ const bosses = [
     name: 'Maze Minotaur',
     icon: '🐂',
     health: 15,
+    defense: 12,
     damageDie: 'd10' as Die,
     action: 'Charging horn',
     special: 'On a hit, the target loses their next reaction.',
@@ -323,6 +345,7 @@ const bosses = [
     name: 'Moonlit Lich',
     icon: '🧙‍♂️',
     health: 16,
+    defense: 13,
     damageDie: 'd10' as Die,
     action: 'Moon beam',
     special: 'Once per combat, every hero loses 1 health.',
@@ -331,6 +354,7 @@ const bosses = [
     name: 'Iron Golem',
     icon: '🤖',
     health: 18,
+    defense: 14,
     damageDie: 'd12' as Die,
     action: 'Iron fist',
     special: 'The first two hits against it each deal only 1 damage.',
@@ -402,7 +426,9 @@ export function createAdventure(options: AdventureOptions): Adventure {
     }
 
     const source =
-      monsterDeck[(seed + room + options.heroes.length - 1) % monsterDeck.length]
+      monsterDeck[
+        (seed + room + options.heroes.length - 1) % monsterDeck.length
+      ]
     const canMob = options.mobs && source.mob && room > 1
     const monsterCount =
       canMob && (seed + room + options.heroes.length) % 3 === 0 ? 3 : 1
