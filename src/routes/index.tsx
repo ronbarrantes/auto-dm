@@ -14,8 +14,6 @@ import {
   Swords,
   X,
 } from 'lucide-react'
-import monsterGuardians from '../assets/monster-guardians.jpg'
-import monsterTriptych from '../assets/monster-triptych.jpg'
 import { createAdventure, dice, getHeroStats, heroClasses } from '../game/rules'
 import { useGameStore } from '../stores/game-store'
 import type { SelectedCard } from '../stores/game-store'
@@ -697,8 +695,8 @@ function MonsterCard({
     <article className="game-card monster-card">
       <div className="card-ribbon">{monster.isBoss ? 'BOSS' : 'MONSTER'}</div>
       <div
-        className={`monster-art monster-art--${getPortrait(monster).position}`}
-        style={{ backgroundImage: `url(${getPortrait(monster).source})` }}
+        className={`monster-art ${monster.image.isSprite ? `monster-art--${monster.image.position}` : 'monster-art--single'}`}
+        style={{ backgroundImage: `url(${monster.image.source})` }}
       />
       <CardTitle
         name={monster.name}
@@ -883,18 +881,4 @@ function getSelectedCard(
     encounter.monsters.find((item) => item.id === selected.id) ??
     encounter.monsters[0]
   return { kind: 'monster' as const, monster }
-}
-
-function getPortrait(monster: Monster) {
-  if (monster.art === 'goblin')
-    return { source: monsterTriptych, position: 'left' }
-  if (monster.art === 'skeleton')
-    return { source: monsterTriptych, position: 'center' }
-  if (monster.art === 'slime')
-    return { source: monsterTriptych, position: 'right' }
-  if (monster.name.includes('Wolf'))
-    return { source: monsterGuardians, position: 'left' }
-  if (monster.name.includes('Gargoyle') || monster.name.includes('Mimic'))
-    return { source: monsterGuardians, position: 'center' }
-  return { source: monsterGuardians, position: 'right' }
 }

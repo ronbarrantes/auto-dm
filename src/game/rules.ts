@@ -33,8 +33,22 @@ export type Monster = {
   action: string
   special: string
   art: 'goblin' | 'skeleton' | 'slime' | 'shadow'
+  image: MonsterImage
   isBoss?: boolean
 }
+
+export type MonsterImage = {
+  source: string
+  position: 'left' | 'center' | 'right'
+  isSprite: boolean
+}
+
+const placeholderImages = {
+  goblin: { source: monsterTriptych, position: 'left', isSprite: true },
+  skeleton: { source: monsterTriptych, position: 'center', isSprite: true },
+  slime: { source: monsterTriptych, position: 'right', isSprite: true },
+  shadow: { source: monsterGuardians, position: 'right', isSprite: true },
+} as const satisfies Record<Monster['art'], MonsterImage>
 
 export type Encounter = {
   id: string
@@ -617,6 +631,7 @@ export function createAdventure(options: AdventureOptions): Adventure {
             ),
             damageDie: chooseDie(boss.damageDie, options.diceKit),
             art: 'shadow' as const,
+            image: placeholderImages.shadow,
             isBoss: true,
           },
         ],
@@ -639,6 +654,7 @@ export function createAdventure(options: AdventureOptions): Adventure {
           monsterCount > 1 ? `${source.name} ${monsterIndex + 1}` : source.name,
         health: source.health + rule.healthBoost + (room > 2 ? 1 : 0),
         damageDie: chooseDie(source.damageDie, options.diceKit),
+        image: placeholderImages[source.art],
       }),
     )
 
@@ -683,3 +699,5 @@ export function getActorOrder(adventure: Adventure, encounter: Encounter) {
     ])
     .concat(monsters.slice(heroes.length))
 }
+import monsterGuardians from '../assets/monster-guardians.jpg'
+import monsterTriptych from '../assets/monster-triptych.jpg'

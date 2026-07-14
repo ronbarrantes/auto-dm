@@ -517,11 +517,14 @@ legend {
 }
 .monster-art {
   min-height: 12rem;
-  border-bottom: 3px solid #26372f;
   background-repeat: no-repeat;
   /* Each asset is a three-panel sheet. Keep the selected panel proportional. */
   background-size: 300% auto;
   background-color: #1b2925;
+}
+.monster-art--single {
+  background-position: center;
+  background-size: cover;
 }
 .monster-art--left {
   background-position: left center;
