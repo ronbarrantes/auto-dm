@@ -846,6 +846,29 @@ legend {
     width: min(850px, 100%);
     margin: auto;
     padding-inline: 1.5rem;
+    grid-template-areas:
+      'status status'
+      'card actions'
+      'card switcher';
+    grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 17rem);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .play-status {
+    grid-area: status;
+  }
+  .card-stage {
+    grid-area: card;
+  }
+  .play-actions {
+    grid-area: actions;
+    grid-template-columns: 1fr;
+    align-self: start;
+  }
+  .card-switcher {
+    grid-area: switcher;
+    flex-direction: column;
+    align-self: end;
+    overflow-x: visible;
   }
   .game-card {
     width: min(440px, 100%);
