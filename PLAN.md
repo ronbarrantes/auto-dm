@@ -84,7 +84,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** Given the same setup, Auto DM can generate a complete dungeon with a defensible difficulty curve.
 
-**Current implementation:** The deterministic generator uses party health as a small strength signal, scales health by difficulty, avoids repeating the same monster in adjacent rooms, reserves a boss, and tests Dice Kit and mobs-off behavior. Balance values need real-table tuning.
+**Current implementation:** The deterministic generator draws from 36 regular monsters and 4 bosses, uses party health as a small strength signal, scales health by difficulty, avoids repeating the same monster in adjacent rooms, reserves a boss, and tests Dice Kit and mobs-off behavior. Balance values need real-table tuning.
 
 ### 5. Design the card system and tabletop flow
 

@@ -41,13 +41,13 @@ describe('Auto DM encounter generator', () => {
 
   it('can start an adventure with every regular monster', () => {
     const startingMonsters = new Set(
-      Array.from({ length: 18 }, (_, seed) => {
+      Array.from({ length: 36 }, (_, seed) => {
         const adventure = createAdventure({ ...options, seed })
         return adventure.encounters[0].monsters[0].name
       }),
     )
 
-    expect(startingMonsters).toHaveLength(18)
+    expect(startingMonsters).toHaveLength(36)
   })
 
   it('picks the closest available die when a card asks for an unavailable die', () => {
