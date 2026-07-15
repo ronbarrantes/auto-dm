@@ -262,7 +262,7 @@ function StartScreen({
   onMonsterCards: () => void
 }) {
   return (
-    <section className="setup-screen">
+    <section className="setup-screen start-screen">
       <div className="setup-heading">
         <p className="kicker">A real-dice dungeon helper</p>
         <h1>Set the table.</h1>

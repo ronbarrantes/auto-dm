@@ -898,6 +898,75 @@ legend {
   }
 }
 
+@media (min-width: 700px) and (orientation: landscape) {
+  .setup-screen {
+    width: min(960px, 100%);
+    padding-inline: 2.5rem;
+  }
+  .start-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr);
+    align-content: center;
+    column-gap: 3rem;
+    row-gap: 1.1rem;
+  }
+  .start-screen .setup-heading {
+    grid-row: span 3;
+  }
+  .start-screen .count-grid,
+  .start-screen .primary-cta,
+  .start-screen .how-to-play-button {
+    grid-column: 2;
+  }
+  .start-screen .how-to-play-button {
+    justify-self: center;
+  }
+  .class-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .play-screen {
+    width: min(1100px, 100%);
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1.2rem 2rem 1.3rem;
+  }
+  .play-status {
+    grid-column: 1 / -1;
+  }
+  .card-stage {
+    grid-row: 2 / 4;
+    grid-column: 1;
+    place-items: center;
+  }
+  .game-card {
+    width: min(100%, 34rem);
+  }
+  .play-actions {
+    display: grid;
+    grid-row: 2;
+    grid-column: 2;
+    grid-template-columns: 1fr;
+    align-self: start;
+  }
+  .card-switcher {
+    flex-direction: column;
+    grid-row: 3;
+    grid-column: 2;
+    gap: 0.7rem;
+    overflow: visible;
+    padding: 0;
+  }
+  .switcher-group {
+    flex-wrap: wrap;
+  }
+  .switcher-group > span {
+    flex-basis: 100%;
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+}
+
 @media (max-height: 760px) {
   .play-screen {
     gap: 0.4rem;
