@@ -320,7 +320,7 @@ p {
   height: auto;
 }
 .monster-cards-grid .monster-art {
-  min-height: 9rem;
+  min-height: 20rem;
 }
 .step-line {
   display: flex;
