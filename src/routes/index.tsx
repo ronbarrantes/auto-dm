@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Dices,
   Heart,
+  LibraryBig,
   Minus,
   Plus,
   Settings,
@@ -14,7 +15,13 @@ import {
   Swords,
   X,
 } from 'lucide-react'
-import { createAdventure, dice, getHeroStats, heroClasses } from '../game/rules'
+import {
+  createAdventure,
+  dice,
+  getHeroStats,
+  getMonsterCards,
+  heroClasses,
+} from '../game/rules'
 import { useGameStore } from '../stores/game-store'
 import type { SelectedCard } from '../stores/game-store'
 import { useSettingsStore } from '../stores/settings-store'
@@ -72,6 +79,7 @@ function App() {
   const setTheme = useSettingsStore((state) => state.setTheme)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [howToPlayOpen, setHowToPlayOpen] = useState(false)
+  const [monsterCardsOpen, setMonsterCardsOpen] = useState(false)
 
   const encounter = adventure?.encounters[roomIndex]
 
@@ -171,6 +179,7 @@ function App() {
           onRooms={setRooms}
           onContinue={beginHeroes}
           onHowToPlay={() => setHowToPlayOpen(true)}
+          onMonsterCards={() => setMonsterCardsOpen(true)}
         />
       )}
       {stage === 'heroes' && (
@@ -228,6 +237,9 @@ function App() {
         />
       )}
       {howToPlayOpen && <HowToPlay onClose={() => setHowToPlayOpen(false)} />}
+      {monsterCardsOpen && (
+        <MonsterCards onClose={() => setMonsterCardsOpen(false)} />
+      )}
     </main>
   )
 }
@@ -239,6 +251,7 @@ function StartScreen({
   onRooms,
   onContinue,
   onHowToPlay,
+  onMonsterCards,
 }: {
   heroCount: number
   rooms: number
@@ -246,6 +259,7 @@ function StartScreen({
   onRooms: (value: number) => void
   onContinue: () => void
   onHowToPlay: () => void
+  onMonsterCards: () => void
 }) {
   return (
     <section className="setup-screen">
@@ -277,6 +291,9 @@ function StartScreen({
       </button>
       <button className="how-to-play-button" onClick={onHowToPlay}>
         <BookOpen size={18} /> How to play
+      </button>
+      <button className="how-to-play-button" onClick={onMonsterCards}>
+        <LibraryBig size={18} /> Monster cards
       </button>
     </section>
   )
@@ -323,6 +340,44 @@ function HowToPlay({ onClose }: { onClose: () => void }) {
         <button className="primary-cta" onClick={onClose}>
           Got it, let’s play <ChevronRight />
         </button>
+      </section>
+    </div>
+  )
+}
+
+function MonsterCards({ onClose }: { onClose: () => void }) {
+  const monsters = getMonsterCards()
+
+  return (
+    <div className="how-to-play-backdrop" role="dialog" aria-modal="true">
+      <section
+        className="how-to-play-panel monster-cards-panel"
+        aria-labelledby="monster-cards-title"
+      >
+        <header>
+          <div>
+            <p className="kicker">Card reference</p>
+            <h2 id="monster-cards-title">Monster cards</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close monster cards">
+            <X />
+          </button>
+        </header>
+        <p className="monster-cards-intro">
+          Every monster in the game, shown as it will appear at the table.
+        </p>
+        <div className="monster-cards-grid">
+          {monsters.map((monster) => (
+            <MonsterCard
+              key={monster.id}
+              monster={monster}
+              health={monster.health}
+              onHealth={() => undefined}
+              targetRoll={11}
+              readOnly
+            />
+          ))}
+        </div>
       </section>
     </div>
   )
@@ -685,11 +740,13 @@ function MonsterCard({
   health,
   onHealth,
   targetRoll,
+  readOnly = false,
 }: {
   monster: Monster
   health: number
   onHealth: (id: string, amount: number) => void
   targetRoll: number
+  readOnly?: boolean
 }) {
   return (
     <article className="game-card monster-card">
@@ -704,6 +761,7 @@ function MonsterCard({
         health={health}
         maxHealth={monster.health}
         onHealth={(amount) => onHealth(monster.id, amount)}
+        readOnly={readOnly}
       />
       <div className="card-rule">
         <span>
@@ -731,12 +789,14 @@ function CardTitle({
   health,
   maxHealth,
   onHealth,
+  readOnly = false,
 }: {
   name: string
   subtitle: string
   health: number
   maxHealth: number
   onHealth: (amount: number) => void
+  readOnly?: boolean
 }) {
   return (
     <div className="card-title">
@@ -745,18 +805,25 @@ function CardTitle({
         <p>{subtitle}</p>
       </div>
       <div className="health-control">
-        <button
-          onClick={() => onHealth(-1)}
-          aria-label={`Lower ${name} health`}
-        >
-          <Minus />
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => onHealth(-1)}
+            aria-label={`Lower ${name} health`}
+          >
+            <Minus />
+          </button>
+        )}
         <strong>
           <Heart size={14} /> {health}/{maxHealth}
         </strong>
-        <button onClick={() => onHealth(1)} aria-label={`Raise ${name} health`}>
-          <Plus />
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => onHealth(1)}
+            aria-label={`Raise ${name} health`}
+          >
+            <Plus />
+          </button>
+        )}
       </div>
     </div>
   )

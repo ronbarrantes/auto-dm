@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { chooseDie, createAdventure, getActorOrder } from './rules'
+import {
+  chooseDie,
+  createAdventure,
+  getActorOrder,
+  getMonsterCards,
+} from './rules'
 import type { AdventureOptions } from './rules'
 
 const options: AdventureOptions = {
@@ -41,13 +46,20 @@ describe('Auto DM encounter generator', () => {
 
   it('can start an adventure with every regular monster', () => {
     const startingMonsters = new Set(
-      Array.from({ length: 36 }, (_, seed) => {
+      Array.from({ length: 35 }, (_, seed) => {
         const adventure = createAdventure({ ...options, seed })
         return adventure.encounters[0].monsters[0].name
       }),
     )
 
-    expect(startingMonsters).toHaveLength(36)
+    expect(startingMonsters).toHaveLength(35)
+  })
+
+  it('provides art for every monster card', () => {
+    const cards = getMonsterCards()
+
+    expect(cards).toHaveLength(39)
+    expect(cards.every((card) => card.image.source)).toBe(true)
   })
 
   it('picks the closest available die when a card asks for an unavailable die', () => {

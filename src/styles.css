@@ -243,6 +243,9 @@ p {
   background: transparent;
   font-weight: 700;
 }
+.how-to-play-button + .how-to-play-button {
+  margin-top: -0.35rem;
+}
 .how-to-play-backdrop {
   position: fixed;
   z-index: 40;
@@ -298,6 +301,26 @@ p {
 }
 .how-to-play-panel b {
   color: #fff5e3;
+}
+.monster-cards-panel {
+  width: min(100%, 70rem);
+}
+.monster-cards-intro {
+  margin: 0.5rem 0 1.25rem;
+  color: #d6dfd3;
+  line-height: 1.45;
+}
+.monster-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+.monster-cards-grid .game-card {
+  width: 100%;
+  height: auto;
+}
+.monster-cards-grid .monster-art {
+  min-height: 9rem;
 }
 .step-line {
   display: flex;
