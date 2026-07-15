@@ -96,7 +96,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** Cards and the combat view tell the table exactly what to do without outside instructions.
 
-**Current implementation:** The local combat view provides active actor, combat round, d20 target, action prompts, monster art cards, health controls, and room progression. Item cards are deliberately deferred.
+**Current implementation:** The local combat view provides active actor, combat round, d20 target, action prompts, individually illustrated monster cards, health controls, and room progression. The start screen also offers a read-only Monster Cards gallery for table reference. Item cards are deliberately deferred.
 
 ### 6. Build the local, single-device experience
 

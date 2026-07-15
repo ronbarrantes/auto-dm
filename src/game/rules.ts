@@ -1,3 +1,17 @@
+import blobVineArmor from '../assets/blob-vine-arm.png'
+import bogWitchClockworkMimic from '../assets/bwit-cwcent-mim.png'
+import caveBearArcherImp from '../assets/cbear-archr-eimp.png'
+import caveWolfBatKobold from '../assets/cwol-bat-kobo.png'
+import gargoyleTrollKnight from '../assets/ggl-ctrol-skni.png'
+import goblinSkeletonSlime from '../assets/gobs-ske-blusl.png'
+import ratCrocodileGolem from '../assets/grat-croc-mgol.png'
+import iceLizardFairy from '../assets/ice-liz-dfair.png'
+import minotaurLichGolem from '../assets/mino-lich-igol.png'
+import mushroomBeetleRatKing from '../assets/mush-fbeet-ratk.png'
+import owlbearLizardDragon from '../assets/owlb-avli-edrag.png'
+import scorpionHoundCyclops from '../assets/scor-hou-cyclo.png'
+import spiderCrabLantern from '../assets/wspi-crab-lant.png'
+
 export const dice = ['d4', 'd6', 'd8', 'd10', 'd12'] as const
 
 export type Die = (typeof dice)[number]
@@ -43,12 +57,177 @@ export type MonsterImage = {
   isSprite: boolean
 }
 
-const placeholderImages = {
-  goblin: { source: monsterTriptych, position: 'left', isSprite: true },
-  skeleton: { source: monsterTriptych, position: 'center', isSprite: true },
-  slime: { source: monsterTriptych, position: 'right', isSprite: true },
-  shadow: { source: monsterGuardians, position: 'right', isSprite: true },
-} as const satisfies Record<Monster['art'], MonsterImage>
+const monsterImages = {
+  'Goblin Scout': {
+    source: goblinSkeletonSlime,
+    position: 'left',
+    isSprite: true,
+  },
+  'Rattling Skeleton': {
+    source: goblinSkeletonSlime,
+    position: 'center',
+    isSprite: true,
+  },
+  'Blue Slime': {
+    source: goblinSkeletonSlime,
+    position: 'right',
+    isSprite: true,
+  },
+  'Cave Wolf': { source: caveWolfBatKobold, position: 'left', isSprite: true },
+  'Bat Swarm': {
+    source: caveWolfBatKobold,
+    position: 'center',
+    isSprite: true,
+  },
+  'Kobold Tinkerer': {
+    source: caveWolfBatKobold,
+    position: 'right',
+    isSprite: true,
+  },
+  'Mushroom Sprite': {
+    source: mushroomBeetleRatKing,
+    position: 'left',
+    isSprite: true,
+  },
+  'Fire Beetle': {
+    source: mushroomBeetleRatKing,
+    position: 'center',
+    isSprite: true,
+  },
+  'Rat King': {
+    source: mushroomBeetleRatKing,
+    position: 'right',
+    isSprite: true,
+  },
+  'Web Spider': { source: spiderCrabLantern, position: 'left', isSprite: true },
+  'Crystal Crab': {
+    source: spiderCrabLantern,
+    position: 'center',
+    isSprite: true,
+  },
+  'Ghost Lantern': {
+    source: spiderCrabLantern,
+    position: 'right',
+    isSprite: true,
+  },
+  'Stone Gargoyle': {
+    source: gargoyleTrollKnight,
+    position: 'left',
+    isSprite: true,
+  },
+  'Cave Troll': {
+    source: gargoyleTrollKnight,
+    position: 'center',
+    isSprite: true,
+  },
+  'Shadow Knight': {
+    source: gargoyleTrollKnight,
+    position: 'right',
+    isSprite: true,
+  },
+  'Bog Witch': {
+    source: bogWitchClockworkMimic,
+    position: 'left',
+    isSprite: true,
+  },
+  'Clockwork Sentry': {
+    source: bogWitchClockworkMimic,
+    position: 'center',
+    isSprite: true,
+  },
+  'Treasure Mimic': {
+    source: bogWitchClockworkMimic,
+    position: 'right',
+    isSprite: true,
+  },
+  'Giant Rat': { source: ratCrocodileGolem, position: 'left', isSprite: true },
+  'Sewer Crocodile': {
+    source: ratCrocodileGolem,
+    position: 'center',
+    isSprite: true,
+  },
+  'Moss Golem': {
+    source: ratCrocodileGolem,
+    position: 'right',
+    isSprite: true,
+  },
+  'Cave Bear': { source: caveBearArcherImp, position: 'left', isSprite: true },
+  'Bone Archer': {
+    source: caveBearArcherImp,
+    position: 'center',
+    isSprite: true,
+  },
+  'Ember Imp': { source: caveBearArcherImp, position: 'right', isSprite: true },
+  'Ooze Blob': { source: blobVineArmor, position: 'left', isSprite: true },
+  'Thorny Vine Beast': {
+    source: blobVineArmor,
+    position: 'center',
+    isSprite: true,
+  },
+  'Haunted Armor': { source: blobVineArmor, position: 'right', isSprite: true },
+  'Ice Sprite': { source: iceLizardFairy, position: 'left', isSprite: true },
+  'Swamp Lizard': {
+    source: iceLizardFairy,
+    position: 'center',
+    isSprite: true,
+  },
+  'Dark Fairy': { source: iceLizardFairy, position: 'right', isSprite: true },
+  'Dungeon Owlbear': {
+    source: owlbearLizardDragon,
+    position: 'left',
+    isSprite: true,
+  },
+  'Lava Lizard': {
+    source: owlbearLizardDragon,
+    position: 'center',
+    isSprite: true,
+  },
+  'Sand Scorpion': {
+    source: scorpionHoundCyclops,
+    position: 'left',
+    isSprite: true,
+  },
+  'Phantom Hound': {
+    source: scorpionHoundCyclops,
+    position: 'center',
+    isSprite: true,
+  },
+  'Cyclops Guard': {
+    source: scorpionHoundCyclops,
+    position: 'right',
+    isSprite: true,
+  },
+  'Young Ember Dragon': {
+    source: owlbearLizardDragon,
+    position: 'right',
+    isSprite: true,
+  },
+  'Maze Minotaur': {
+    source: minotaurLichGolem,
+    position: 'left',
+    isSprite: true,
+  },
+  'Moonlit Lich': {
+    source: minotaurLichGolem,
+    position: 'center',
+    isSprite: true,
+  },
+  'Iron Golem': {
+    source: minotaurLichGolem,
+    position: 'right',
+    isSprite: true,
+  },
+} as const satisfies Record<string, MonsterImage>
+
+function getMonsterImage(name: string) {
+  const image = monsterImages[name as keyof typeof monsterImages]
+
+  if (!image) {
+    throw new Error(`Missing monster art for ${name}`)
+  }
+
+  return image
+}
 
 export type Encounter = {
   id: string
@@ -489,17 +668,6 @@ const monsterDeck = [
     mob: false,
   },
   {
-    name: 'Cursed Pirate',
-    icon: '🏴‍☠️',
-    health: 6,
-    defense: 11,
-    damageDie: 'd8' as Die,
-    action: 'Ghostly cutlass',
-    special: 'On a 16+, the target cannot use an item next turn.',
-    art: 'skeleton' as const,
-    mob: false,
-  },
-  {
     name: 'Sand Scorpion',
     icon: '🦂',
     health: 5,
@@ -631,7 +799,7 @@ export function createAdventure(options: AdventureOptions): Adventure {
             ),
             damageDie: chooseDie(boss.damageDie, options.diceKit),
             art: 'shadow' as const,
-            image: placeholderImages.shadow,
+            image: getMonsterImage(boss.name),
             isBoss: true,
           },
         ],
@@ -654,7 +822,7 @@ export function createAdventure(options: AdventureOptions): Adventure {
           monsterCount > 1 ? `${source.name} ${monsterIndex + 1}` : source.name,
         health: source.health + rule.healthBoost + (room > 2 ? 1 : 0),
         damageDie: chooseDie(source.damageDie, options.diceKit),
-        image: placeholderImages[source.art],
+        image: getMonsterImage(source.name),
       }),
     )
 
@@ -699,5 +867,20 @@ export function getActorOrder(adventure: Adventure, encounter: Encounter) {
     ])
     .concat(monsters.slice(heroes.length))
 }
-import monsterGuardians from '../assets/monster-guardians.jpg'
-import monsterTriptych from '../assets/monster-triptych.jpg'
+
+export function getMonsterCards(): Monster[] {
+  return [
+    ...monsterDeck.map((monster) => ({
+      ...monster,
+      id: `reference-${monster.name}`,
+      image: getMonsterImage(monster.name),
+    })),
+    ...bosses.map((boss) => ({
+      ...boss,
+      id: `reference-${boss.name}`,
+      art: 'shadow' as const,
+      image: getMonsterImage(boss.name),
+      isBoss: true,
+    })),
+  ]
+}

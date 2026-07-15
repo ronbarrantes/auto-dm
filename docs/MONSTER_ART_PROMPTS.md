@@ -38,7 +38,6 @@ Use this prompt prefix for every image: `friendly spooky fantasy storybook illus
 |      | Dark Fairy         | mysterious purple fairy with dark wings                  |
 |      | Dungeon Owlbear    | fluffy owl-bear guardian in a torchlit hall              |
 |      | Lava Lizard        | salamander-like lizard with glowing lava markings        |
-|      | Cursed Pirate      | ghost pirate with a cutlass and tattered coat            |
 |      | Sand Scorpion      | armored scorpion emerging from dungeon sand              |
 |      | Phantom Hound      | ghostly dog made of pale mist                            |
 |      | Cyclops Guard      | one-eyed giant guard with a heavy club                   |
