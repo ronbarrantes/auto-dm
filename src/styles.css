@@ -1028,6 +1028,30 @@ legend {
   }
 }
 
+@media (min-width: 60rem) and (max-height: 52rem) {
+  .play-screen {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .card-stage {
+    align-items: start;
+  }
+  .game-card {
+    height: calc(100dvh - 5.75rem);
+    max-height: 46rem;
+    grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  }
+  .monster-art {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    background-position: center top;
+  }
+  .card-title,
+  .card-rule {
+    padding-block: 0.55rem;
+  }
+}
+
 @media (max-width: 24rem) {
   .app-header {
     padding: 24px 76px 24px 16px;
