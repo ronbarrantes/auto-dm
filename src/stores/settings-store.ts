@@ -1,17 +1,17 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { dice } from '../game/rules'
-import type { Die, Difficulty } from '../game/rules'
+import type { Die, Difficulty, DungeonTheme } from '../game/rules'
 
 type SettingsStore = {
   difficulty: Difficulty
   diceKit: Die[]
   mobs: boolean
-  theme: string
+  theme: DungeonTheme
   setDifficulty: (difficulty: Difficulty) => void
   toggleDie: (die: Die) => void
   setMobs: (mobs: boolean) => void
-  setTheme: (theme: string) => void
+  setTheme: (theme: DungeonTheme) => void
 }
 
 export const useSettingsStore = create<SettingsStore>()(

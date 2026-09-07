@@ -18,6 +18,8 @@ import {
 import {
   createAdventure,
   dice,
+  dungeonThemes,
+  getDungeonDefinition,
   getHeroStats,
   getMonsterCards,
   heroClasses,
@@ -29,6 +31,7 @@ import type {
   Adventure,
   Die,
   Difficulty,
+  DungeonTheme,
   Heritage,
   Hero,
   HeroClassId,
@@ -38,7 +41,6 @@ import type {
 export const Route = createFileRoute('/')({ component: App })
 
 const heritages: Heritage[] = ['Human', 'Elf', 'Dwarf', 'Halfling']
-const themes = ['Crystal Cave', 'Forgotten Castle', 'Mossy Ruins']
 
 function App() {
   const [hasHydrated, setHasHydrated] = useState(false)
@@ -82,6 +84,10 @@ function App() {
   const [monsterCardsOpen, setMonsterCardsOpen] = useState(false)
 
   const encounter = adventure?.encounters[roomIndex]
+  const dungeon = getDungeonDefinition(theme)
+  const adventureBackground = adventure
+    ? (adventure.background ?? getDungeonDefinition(adventure.theme).background)
+    : undefined
 
   useEffect(() => {
     void Promise.all([
@@ -89,6 +95,28 @@ function App() {
       useSettingsStore.persist.rehydrate(),
     ]).then(() => setHasHydrated(true))
   }, [])
+
+  useEffect(() => {
+    if (hasHydrated && rooms > dungeon.maxRooms) {
+      setRooms(dungeon.maxRooms)
+    }
+  }, [dungeon.maxRooms, hasHydrated, rooms, setRooms])
+
+  const changeTheme = (nextTheme: DungeonTheme) => {
+    const nextDungeon = getDungeonDefinition(nextTheme)
+    setTheme(nextTheme)
+    setRooms(Math.min(rooms, nextDungeon.maxRooms))
+
+    if (draftClass && !nextDungeon.heroClasses.includes(draftClass)) {
+      setDraftClass(null)
+    }
+    if (
+      heroes.some((hero) => !nextDungeon.heroClasses.includes(hero.classId))
+    ) {
+      setHeroes([])
+      setStage('start')
+    }
+  }
 
   const beginHeroes = () => {
     beginHeroSetup()
@@ -161,7 +189,19 @@ function App() {
       className={
         stage === 'play' ? 'game-shell game-shell--play' : 'game-shell'
       }
+      style={
+        stage === 'play' && adventureBackground
+          ? { backgroundColor: adventureBackground.color }
+          : undefined
+      }
     >
+      {stage === 'play' && adventureBackground?.image && (
+        <div
+          className="dungeon-background"
+          style={{ backgroundImage: `url(${adventureBackground.image})` }}
+          aria-hidden="true"
+        />
+      )}
       {stage !== 'play' && (
         <button
           className="corner-settings"
@@ -175,6 +215,7 @@ function App() {
         <StartScreen
           heroCount={heroCount}
           rooms={rooms}
+          maxRooms={dungeon.maxRooms}
           onHeroCount={setHeroCount}
           onRooms={setRooms}
           onContinue={beginHeroes}
@@ -188,6 +229,7 @@ function App() {
           total={heroCount}
           name={draftName}
           classId={draftClass}
+          classIds={dungeon.heroClasses}
           heritage={draftHeritage}
           onName={setDraftName}
           onClass={setDraftClass}
@@ -228,11 +270,12 @@ function App() {
           difficulty={difficulty}
           diceKit={diceKit}
           mobs={mobs}
+          mobsAllowed={dungeon.allowMobs}
           theme={theme}
           onDifficulty={setDifficulty}
           onToggleDie={toggleDie}
           onMobs={setMobs}
-          onTheme={setTheme}
+          onTheme={changeTheme}
           onClose={() => setSettingsOpen(false)}
         />
       )}
@@ -247,6 +290,7 @@ function App() {
 function StartScreen({
   heroCount,
   rooms,
+  maxRooms,
   onHeroCount,
   onRooms,
   onContinue,
@@ -255,6 +299,7 @@ function StartScreen({
 }: {
   heroCount: number
   rooms: number
+  maxRooms: number
   onHeroCount: (value: number) => void
   onRooms: (value: number) => void
   onContinue: () => void
@@ -283,7 +328,7 @@ function StartScreen({
           note="the last room is the boss"
           onChange={onRooms}
           min={3}
-          max={12}
+          max={maxRooms}
         />
       </div>
       <button className="primary-cta" onClick={onContinue}>
@@ -428,6 +473,7 @@ function HeroScreen({
   total,
   name,
   classId,
+  classIds,
   heritage,
   onName,
   onClass,
@@ -439,6 +485,7 @@ function HeroScreen({
   total: number
   name: string
   classId: HeroClassId | null
+  classIds: readonly HeroClassId[]
   heritage: Heritage
   onName: (value: string) => void
   onClass: (value: HeroClassId) => void
@@ -461,19 +508,23 @@ function HeroScreen({
         <h1>Who is this hero?</h1>
       </div>
       <div className="class-grid">
-        {Object.entries(heroClasses).map(([id, heroClass]) => (
-          <button
-            key={id}
-            className={
-              classId === id ? 'class-choice is-selected' : 'class-choice'
-            }
-            onClick={() => onClass(id as HeroClassId)}
-          >
-            <span>{heroClass.icon}</span>
-            <strong>{heroClass.label}</strong>
-            <small>{heroClass.role}</small>
-          </button>
-        ))}
+        {classIds.map((id) => {
+          const heroClass = heroClasses[id]
+
+          return (
+            <button
+              key={id}
+              className={
+                classId === id ? 'class-choice is-selected' : 'class-choice'
+              }
+              onClick={() => onClass(id)}
+            >
+              <span>{heroClass.icon}</span>
+              <strong>{heroClass.label}</strong>
+              <small>{heroClass.role}</small>
+            </button>
+          )
+        })}
       </div>
       <div className="hero-details">
         <label>
@@ -515,7 +566,7 @@ function ReadyScreen({
 }: {
   heroes: Hero[]
   rooms: number
-  theme: string
+  theme: DungeonTheme
   onBack: () => void
   onStart: () => void
 }) {
@@ -833,6 +884,7 @@ function SettingsPanel({
   difficulty,
   diceKit,
   mobs,
+  mobsAllowed,
   theme,
   onDifficulty,
   onToggleDie,
@@ -843,11 +895,12 @@ function SettingsPanel({
   difficulty: Difficulty
   diceKit: Die[]
   mobs: boolean
-  theme: string
+  mobsAllowed: boolean
+  theme: DungeonTheme
   onDifficulty: (value: Difficulty) => void
   onToggleDie: (die: Die) => void
   onMobs: (value: boolean) => void
-  onTheme: (value: string) => void
+  onTheme: (value: DungeonTheme) => void
   onClose: () => void
 }) {
   return (
@@ -868,13 +921,15 @@ function SettingsPanel({
           </button>
         </header>
         <label>
-          Dungeon feeling
+          Dungeon
           <select
             value={theme}
-            onChange={(event) => onTheme(event.target.value)}
+            onChange={(event) => onTheme(event.target.value as DungeonTheme)}
           >
-            {themes.map((item) => (
-              <option key={item}>{item}</option>
+            {dungeonThemes.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
             ))}
           </select>
         </label>
@@ -922,11 +977,16 @@ function SettingsPanel({
           <input
             type="checkbox"
             checked={mobs}
+            disabled={!mobsAllowed}
             onChange={(event) => onMobs(event.target.checked)}
           />
           <span>
             <b>Monster mobs</b>
-            <small>Let up to three smaller monsters appear together.</small>
+            <small>
+              {mobsAllowed
+                ? 'Let up to three smaller monsters appear together.'
+                : 'This dungeon uses each monster only once.'}
+            </small>
           </span>
         </label>
       </aside>

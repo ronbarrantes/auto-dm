@@ -3,7 +3,9 @@ import {
   chooseDie,
   createAdventure,
   getActorOrder,
+  getDungeonDefinition,
   getMonsterCards,
+  heroClasses,
 } from './rules'
 import type { AdventureOptions } from './rules'
 
@@ -58,8 +60,48 @@ describe('Auto DM encounter generator', () => {
   it('provides art for every monster card', () => {
     const cards = getMonsterCards()
 
-    expect(cards).toHaveLength(39)
+    expect(cards).toHaveLength(48)
     expect(cards.every((card) => card.image.source)).toBe(true)
+  })
+
+  it('builds a nine-room Backrooms dungeon without repeating entities', () => {
+    const adventure = createAdventure({
+      ...options,
+      rooms: 12,
+      mobs: true,
+      theme: 'The Backrooms',
+      seed: 0,
+    })
+    const names = adventure.encounters.flatMap((encounter) =>
+      encounter.monsters.map((monster) => monster.name),
+    )
+
+    expect(adventure.rooms).toBe(9)
+    expect(adventure.encounters).toHaveLength(9)
+    expect(new Set(names)).toHaveLength(9)
+    expect(names.at(-1)).toBe('Bacteria')
+    expect(
+      adventure.encounters.every(({ monsters }) => monsters.length === 1),
+    ).toBe(true)
+    expect(adventure.background?.image).toBeTruthy()
+  })
+
+  it('offers four equally balanced Wanderer classes only in The Backrooms', () => {
+    const backroomsClasses = getDungeonDefinition('The Backrooms').heroClasses
+    const classicClasses = getDungeonDefinition('Crystal Cave').heroClasses
+    const balanceProfiles = backroomsClasses.map((classId) => {
+      const heroClass = heroClasses[classId]
+      return [heroClass.health, heroClass.attackDie, heroClass.action]
+    })
+
+    expect(backroomsClasses).toEqual([
+      'wanderer-1',
+      'wanderer-2',
+      'wanderer-3',
+      'wanderer-4',
+    ])
+    expect(new Set(balanceProfiles.map(String))).toHaveLength(1)
+    expect(classicClasses).not.toContain('wanderer-1')
   })
 
   it('picks the closest available die when a card asks for an unavailable die', () => {
