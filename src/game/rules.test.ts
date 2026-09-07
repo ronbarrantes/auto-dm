@@ -3,7 +3,9 @@ import {
   chooseDie,
   createAdventure,
   getActorOrder,
+  getDungeonDefinition,
   getMonsterCards,
+  heroClasses,
 } from './rules'
 import type { AdventureOptions } from './rules'
 
@@ -82,6 +84,24 @@ describe('Auto DM encounter generator', () => {
       adventure.encounters.every(({ monsters }) => monsters.length === 1),
     ).toBe(true)
     expect(adventure.background?.image).toBeTruthy()
+  })
+
+  it('offers four equally balanced Wanderer classes only in The Backrooms', () => {
+    const backroomsClasses = getDungeonDefinition('The Backrooms').heroClasses
+    const classicClasses = getDungeonDefinition('Crystal Cave').heroClasses
+    const balanceProfiles = backroomsClasses.map((classId) => {
+      const heroClass = heroClasses[classId]
+      return [heroClass.health, heroClass.attackDie, heroClass.action]
+    })
+
+    expect(backroomsClasses).toEqual([
+      'wanderer-1',
+      'wanderer-2',
+      'wanderer-3',
+      'wanderer-4',
+    ])
+    expect(new Set(balanceProfiles.map(String))).toHaveLength(1)
+    expect(classicClasses).not.toContain('wanderer-1')
   })
 
   it('picks the closest available die when a card asks for an unavailable die', () => {

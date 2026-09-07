@@ -103,8 +103,19 @@ function App() {
   }, [dungeon.maxRooms, hasHydrated, rooms, setRooms])
 
   const changeTheme = (nextTheme: DungeonTheme) => {
+    const nextDungeon = getDungeonDefinition(nextTheme)
     setTheme(nextTheme)
-    setRooms(Math.min(rooms, getDungeonDefinition(nextTheme).maxRooms))
+    setRooms(Math.min(rooms, nextDungeon.maxRooms))
+
+    if (draftClass && !nextDungeon.heroClasses.includes(draftClass)) {
+      setDraftClass(null)
+    }
+    if (
+      heroes.some((hero) => !nextDungeon.heroClasses.includes(hero.classId))
+    ) {
+      setHeroes([])
+      setStage('start')
+    }
   }
 
   const beginHeroes = () => {
@@ -218,6 +229,7 @@ function App() {
           total={heroCount}
           name={draftName}
           classId={draftClass}
+          classIds={dungeon.heroClasses}
           heritage={draftHeritage}
           onName={setDraftName}
           onClass={setDraftClass}
@@ -461,6 +473,7 @@ function HeroScreen({
   total,
   name,
   classId,
+  classIds,
   heritage,
   onName,
   onClass,
@@ -472,6 +485,7 @@ function HeroScreen({
   total: number
   name: string
   classId: HeroClassId | null
+  classIds: readonly HeroClassId[]
   heritage: Heritage
   onName: (value: string) => void
   onClass: (value: HeroClassId) => void
@@ -494,19 +508,23 @@ function HeroScreen({
         <h1>Who is this hero?</h1>
       </div>
       <div className="class-grid">
-        {Object.entries(heroClasses).map(([id, heroClass]) => (
-          <button
-            key={id}
-            className={
-              classId === id ? 'class-choice is-selected' : 'class-choice'
-            }
-            onClick={() => onClass(id as HeroClassId)}
-          >
-            <span>{heroClass.icon}</span>
-            <strong>{heroClass.label}</strong>
-            <small>{heroClass.role}</small>
-          </button>
-        ))}
+        {classIds.map((id) => {
+          const heroClass = heroClasses[id]
+
+          return (
+            <button
+              key={id}
+              className={
+                classId === id ? 'class-choice is-selected' : 'class-choice'
+              }
+              onClick={() => onClass(id)}
+            >
+              <span>{heroClass.icon}</span>
+              <strong>{heroClass.label}</strong>
+              <small>{heroClass.role}</small>
+            </button>
+          )
+        })}
       </div>
       <div className="hero-details">
         <label>

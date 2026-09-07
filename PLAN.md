@@ -35,6 +35,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 - Mobs are optional and must be enabled by a setting before encounters can include multiple copies of one monster.
 - Dungeon definitions own their room limit, monster roster, boss roster, mob support, and play-screen background.
 - The Backrooms has at most 9 rooms, uses each of its 8 regular entities once, and ends with Bacteria as its boss.
+- The Backrooms uses four equally balanced, dungeon-specific classes named Wanderer 1-4.
 
 ## Milestones
 
@@ -61,7 +62,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** A group can create a balanced party of one or more heroes with no RPG knowledge.
 
-**Current implementation:** Hero creation supports a name, class, and heritage. Every class has a small health value, a preferred damage die, and a plain-language signature action.
+**Current implementation:** Hero creation supports a name, class, and heritage. Every class has a small health value, a preferred damage die, and a plain-language signature action. The classic dungeons use the six fantasy classes; The Backrooms instead offers four equally balanced Wanderer classes.
 
 ### 3. Define dungeon setup and difficulty
 

@@ -21,8 +21,33 @@ export const dice = ['d4', 'd6', 'd8', 'd10', 'd12'] as const
 export type Die = (typeof dice)[number]
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type HeroClassId =
-  'paladin' | 'cleric' | 'wizard' | 'rogue' | 'ranger' | 'fighter'
+  | 'paladin'
+  | 'cleric'
+  | 'wizard'
+  | 'rogue'
+  | 'ranger'
+  | 'fighter'
+  | 'wanderer-1'
+  | 'wanderer-2'
+  | 'wanderer-3'
+  | 'wanderer-4'
 export type Heritage = 'Human' | 'Elf' | 'Dwarf' | 'Halfling'
+
+const classicHeroClasses = [
+  'paladin',
+  'cleric',
+  'wizard',
+  'rogue',
+  'ranger',
+  'fighter',
+] as const satisfies readonly HeroClassId[]
+
+const backroomsHeroClasses = [
+  'wanderer-1',
+  'wanderer-2',
+  'wanderer-3',
+  'wanderer-4',
+] as const satisfies readonly HeroClassId[]
 
 export const dungeonThemes = [
   'Crystal Cave',
@@ -37,6 +62,7 @@ type DungeonDefinition = {
   maxRooms: number
   allowMobs: boolean
   roster: 'classic' | 'backrooms'
+  heroClasses: readonly HeroClassId[]
   background: {
     color: string
     image?: string
@@ -48,24 +74,28 @@ const dungeonDefinitions = {
     maxRooms: 12,
     allowMobs: true,
     roster: 'classic',
+    heroClasses: classicHeroClasses,
     background: { color: '#111817' },
   },
   'Forgotten Castle': {
     maxRooms: 12,
     allowMobs: true,
     roster: 'classic',
+    heroClasses: classicHeroClasses,
     background: { color: '#111817' },
   },
   'Mossy Ruins': {
     maxRooms: 12,
     allowMobs: true,
     roster: 'classic',
+    heroClasses: classicHeroClasses,
     background: { color: '#111817' },
   },
   'The Backrooms': {
     maxRooms: 9,
     allowMobs: false,
     roster: 'backrooms',
+    heroClasses: backroomsHeroClasses,
     background: { color: '#29260f', image: backroomsLobby },
   },
 } satisfies Record<DungeonTheme, DungeonDefinition>
@@ -392,6 +422,38 @@ export const heroClasses = {
     health: 11,
     attackDie: 'd8',
     action: 'Power strike: use the next larger die you own.',
+  },
+  'wanderer-1': {
+    label: 'Wanderer 1',
+    role: 'Balanced survivor',
+    icon: '1️⃣',
+    health: 9,
+    attackDie: 'd8',
+    action: 'Second chance: reroll one d20 once per combat.',
+  },
+  'wanderer-2': {
+    label: 'Wanderer 2',
+    role: 'Balanced survivor',
+    icon: '2️⃣',
+    health: 9,
+    attackDie: 'd8',
+    action: 'Second chance: reroll one d20 once per combat.',
+  },
+  'wanderer-3': {
+    label: 'Wanderer 3',
+    role: 'Balanced survivor',
+    icon: '3️⃣',
+    health: 9,
+    attackDie: 'd8',
+    action: 'Second chance: reroll one d20 once per combat.',
+  },
+  'wanderer-4': {
+    label: 'Wanderer 4',
+    role: 'Balanced survivor',
+    icon: '4️⃣',
+    health: 9,
+    attackDie: 'd8',
+    action: 'Second chance: reroll one d20 once per combat.',
   },
 } satisfies Record<
   HeroClassId,
