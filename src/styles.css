@@ -80,8 +80,26 @@ button:disabled {
   text-decoration: none;
 }
 .game-shell--play {
+  position: relative;
+  isolation: isolate;
   height: 100dvh;
   overflow: hidden;
+}
+.dungeon-background {
+  position: fixed;
+  z-index: 0;
+  inset: -1.5rem;
+  background-position: center;
+  background-size: cover;
+  filter: blur(10px);
+  opacity: 0.48;
+  pointer-events: none;
+}
+.dungeon-background::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(6 8 7 / 0.48);
+  content: '';
 }
 .game-shell--play ~ * {
   display: none;
@@ -485,6 +503,7 @@ legend {
 }
 .play-screen {
   position: relative;
+  z-index: 1;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: 0.65rem;
@@ -837,6 +856,9 @@ legend {
   width: 1.1rem;
   height: 1.1rem;
   accent-color: #e3b967;
+}
+.settings-toggle input:disabled {
+  cursor: not-allowed;
 }
 .settings-toggle b,
 .settings-toggle small {

@@ -33,6 +33,8 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 - Dice Kit is a configurable preference. A `d20` is required for the first ruleset; other dice are optional.
 - Initial difficulty choices are Easy, Medium, and Hard.
 - Mobs are optional and must be enabled by a setting before encounters can include multiple copies of one monster.
+- Dungeon definitions own their room limit, monster roster, boss roster, mob support, and play-screen background.
+- The Backrooms has at most 9 rooms, uses each of its 8 regular entities once, and ends with Bacteria as its boss.
 
 ## Milestones
 
@@ -71,7 +73,7 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 **Stopping point:** The app has a complete, understandable adventure-setup specification.
 
-**Current implementation:** The setup screen supports a party, 3-12 rooms, three themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. Dice Kit presets remain a future convenience feature.
+**Current implementation:** The setup screen supports a party, dungeon-specific room limits, four themes, Easy/Medium/Hard, a manually selected Dice Kit, and an optional Mobs toggle. The Backrooms supports 3-9 rooms, uses its own non-repeating monster roster with Bacteria as the boss, and displays a blurred Level 0 background during play. Dice Kit presets remain a future convenience feature.
 
 ### 4. Design encounter balancing and generation
 

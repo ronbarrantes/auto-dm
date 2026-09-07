@@ -1,4 +1,8 @@
 import blobVineArmor from '../assets/blob-vine-arm.webp'
+import backroomsBacteriaClumpFaceling from '../assets/backroom_photos/bac_clum_face.webp'
+import backroomsLobby from '../assets/backroom_photos/Level_0_The_Lobby.webp'
+import backroomsShadowSkinSmiler from '../assets/backroom_photos/shad_skin_smi.webp'
+import backroomsWandererPartygoerScratcher from '../assets/backroom_photos/won_part_scra.webp'
 import bogWitchClockworkMimic from '../assets/bwit-cwcent-mim.webp'
 import caveBearArcherImp from '../assets/cbear-archr-eimp.webp'
 import caveWolfBatKobold from '../assets/cwol-bat-kobo.webp'
@@ -20,6 +24,56 @@ export type HeroClassId =
   'paladin' | 'cleric' | 'wizard' | 'rogue' | 'ranger' | 'fighter'
 export type Heritage = 'Human' | 'Elf' | 'Dwarf' | 'Halfling'
 
+export const dungeonThemes = [
+  'Crystal Cave',
+  'Forgotten Castle',
+  'Mossy Ruins',
+  'The Backrooms',
+] as const
+
+export type DungeonTheme = (typeof dungeonThemes)[number]
+
+type DungeonDefinition = {
+  maxRooms: number
+  allowMobs: boolean
+  roster: 'classic' | 'backrooms'
+  background: {
+    color: string
+    image?: string
+  }
+}
+
+const dungeonDefinitions = {
+  'Crystal Cave': {
+    maxRooms: 12,
+    allowMobs: true,
+    roster: 'classic',
+    background: { color: '#111817' },
+  },
+  'Forgotten Castle': {
+    maxRooms: 12,
+    allowMobs: true,
+    roster: 'classic',
+    background: { color: '#111817' },
+  },
+  'Mossy Ruins': {
+    maxRooms: 12,
+    allowMobs: true,
+    roster: 'classic',
+    background: { color: '#111817' },
+  },
+  'The Backrooms': {
+    maxRooms: 9,
+    allowMobs: false,
+    roster: 'backrooms',
+    background: { color: '#29260f', image: backroomsLobby },
+  },
+} satisfies Record<DungeonTheme, DungeonDefinition>
+
+export function getDungeonDefinition(theme: DungeonTheme): DungeonDefinition {
+  return dungeonDefinitions[theme]
+}
+
 export type Hero = {
   id: string
   name: string
@@ -33,7 +87,7 @@ export type AdventureOptions = {
   difficulty: Difficulty
   diceKit: Die[]
   mobs: boolean
-  theme: string
+  theme: DungeonTheme
   seed?: number
 }
 
@@ -57,7 +111,7 @@ export type MonsterImage = {
   isSprite: boolean
 }
 
-const monsterImages = {
+const monsterImages: Partial<Record<string, MonsterImage>> = {
   'Goblin Scout': {
     source: goblinSkeletonSlime,
     position: 'left',
@@ -217,10 +271,55 @@ const monsterImages = {
     position: 'right',
     isSprite: true,
   },
-} as const satisfies Record<string, MonsterImage>
+  Bacteria: {
+    source: backroomsBacteriaClumpFaceling,
+    position: 'left',
+    isSprite: true,
+  },
+  Clump: {
+    source: backroomsBacteriaClumpFaceling,
+    position: 'center',
+    isSprite: true,
+  },
+  Faceling: {
+    source: backroomsBacteriaClumpFaceling,
+    position: 'right',
+    isSprite: true,
+  },
+  Shadow: {
+    source: backroomsShadowSkinSmiler,
+    position: 'left',
+    isSprite: true,
+  },
+  'Skin Stealer': {
+    source: backroomsShadowSkinSmiler,
+    position: 'center',
+    isSprite: true,
+  },
+  Smiler: {
+    source: backroomsShadowSkinSmiler,
+    position: 'right',
+    isSprite: true,
+  },
+  'Lost Wanderer': {
+    source: backroomsWandererPartygoerScratcher,
+    position: 'left',
+    isSprite: true,
+  },
+  Partygoer: {
+    source: backroomsWandererPartygoerScratcher,
+    position: 'center',
+    isSprite: true,
+  },
+  Scratcher: {
+    source: backroomsWandererPartygoerScratcher,
+    position: 'right',
+    isSprite: true,
+  },
+}
 
 function getMonsterImage(name: string) {
-  const image = monsterImages[name as keyof typeof monsterImages]
+  const image: MonsterImage | undefined = monsterImages[name]
 
   if (!image) {
     throw new Error(`Missing monster art for ${name}`)
@@ -241,6 +340,8 @@ export type Encounter = {
 export type Adventure = AdventureOptions & {
   encounters: Encounter[]
   targetRoll: number
+  // Optional so adventures saved before dungeon backgrounds were added still load.
+  background?: DungeonDefinition['background']
 }
 
 export const heroClasses = {
@@ -702,6 +803,107 @@ const monsterDeck = [
   },
 ] as const
 
+const backroomsMonsterDeck = [
+  {
+    name: 'Clump',
+    icon: '🫴',
+    health: 7,
+    defense: 10,
+    damageDie: 'd6' as Die,
+    action: 'Many-handed swipe',
+    special: 'On a 16+, another hero loses 1 health.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Faceling',
+    icon: '👤',
+    health: 5,
+    defense: 10,
+    damageDie: 'd6' as Die,
+    action: 'Silent rush',
+    special: 'The first hero it hits cannot Dodge next round.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Lost Wanderer',
+    icon: '🌲',
+    health: 5,
+    defense: 9,
+    damageDie: 'd4' as Die,
+    action: 'Long-armed grab',
+    special: 'On a 16+, the target loses their next reaction.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Partygoer',
+    icon: '🎈',
+    health: 6,
+    defense: 11,
+    damageDie: 'd6' as Die,
+    action: 'Surprise lunge',
+    special: 'Its first attack gets +2 to the d20 roll.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Scratcher',
+    icon: '🦞',
+    health: 8,
+    defense: 11,
+    damageDie: 'd8' as Die,
+    action: 'Raking claws',
+    special: 'On a 16+, the target cannot Block next round.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Shadow',
+    icon: '🌑',
+    health: 6,
+    defense: 12,
+    damageDie: 'd6' as Die,
+    action: 'Dark reach',
+    special: 'Dodge the first attack each combat.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Skin Stealer',
+    icon: '🎭',
+    health: 8,
+    defense: 10,
+    damageDie: 'd8' as Die,
+    action: 'Imitating strike',
+    special: 'After a hero hits it, that hero must be its next target.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+  {
+    name: 'Smiler',
+    icon: '😁',
+    health: 5,
+    defense: 13,
+    damageDie: 'd6' as Die,
+    action: 'Darkness bite',
+    special: 'The first hero to miss it loses 1 health.',
+    art: 'shadow' as const,
+    mob: false,
+  },
+] as const
+
+const bacteriaBoss = {
+  name: 'Bacteria',
+  icon: '🦠',
+  health: 15,
+  defense: 12,
+  damageDie: 'd10' as Die,
+  action: 'Towering slam',
+  special: 'On a 16+, every hero loses 1 health.',
+} as const
+
 const bosses = [
   {
     name: 'Young Ember Dragon',
@@ -770,19 +972,24 @@ export function getHeroStats(hero: Hero, diceKit: Die[]) {
 }
 
 export function createAdventure(options: AdventureOptions): Adventure {
+  const dungeon = getDungeonDefinition(options.theme)
+  const roomCount = Math.min(options.rooms, dungeon.maxRooms)
+  const isBackrooms = dungeon.roster === 'backrooms'
+  const deck = isBackrooms ? backroomsMonsterDeck : monsterDeck
+  const bossDeck = isBackrooms ? [bacteriaBoss] : bosses
   const rule = getDifficultyRule(options.difficulty)
-  const seed = options.seed ?? Math.floor(Math.random() * monsterDeck.length)
+  const seed = options.seed ?? Math.floor(Math.random() * deck.length)
   const partyPower = options.heroes.reduce(
     (total, hero) => total + heroClasses[hero.classId].health,
     0,
   )
-  const encounters = Array.from({ length: options.rooms }, (_room, index) => {
+  const encounters = Array.from({ length: roomCount }, (_room, index) => {
     const room = index + 1
-    const isBoss = room === options.rooms
+    const isBoss = room === roomCount
 
     if (isBoss) {
       const boss =
-        bosses[(seed + options.rooms + options.heroes.length) % bosses.length]
+        bossDeck[(seed + roomCount + options.heroes.length) % bossDeck.length]
       return {
         id: `room-${room}`,
         room,
@@ -806,11 +1013,8 @@ export function createAdventure(options: AdventureOptions): Adventure {
       }
     }
 
-    const source =
-      monsterDeck[
-        (seed + room + options.heroes.length - 1) % monsterDeck.length
-      ]
-    const canMob = options.mobs && source.mob && room > 1
+    const source = deck[(seed + room + options.heroes.length - 1) % deck.length]
+    const canMob = dungeon.allowMobs && options.mobs && source.mob && room > 1
     const monsterCount =
       canMob && (seed + room + options.heroes.length) % 3 === 0 ? 3 : 1
     const monsters = Array.from(
@@ -841,8 +1045,10 @@ export function createAdventure(options: AdventureOptions): Adventure {
 
   return {
     ...options,
+    rooms: roomCount,
     encounters,
     targetRoll: rule.targetRoll,
+    background: dungeon.background,
   }
 }
 
@@ -882,5 +1088,17 @@ export function getMonsterCards(): Monster[] {
       image: getMonsterImage(boss.name),
       isBoss: true,
     })),
+    ...backroomsMonsterDeck.map((monster) => ({
+      ...monster,
+      id: `reference-${monster.name}`,
+      image: getMonsterImage(monster.name),
+    })),
+    {
+      ...bacteriaBoss,
+      id: `reference-${bacteriaBoss.name}`,
+      art: 'shadow' as const,
+      image: getMonsterImage(bacteriaBoss.name),
+      isBoss: true,
+    },
   ]
 }
