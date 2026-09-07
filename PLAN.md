@@ -25,6 +25,8 @@ This plan intentionally starts with a small, playable foundation. The goal is a 
 
 ## Decisions Made
 
+- Readability pass: use larger body and supporting text, high-contrast card ink, visible keyboard focus, generous controls, mobile zoom, and scrolling combat layouts that accommodate enlarged text.
+
 - Deployment adapter: Nitro (agnostic), for Vercel deployment.
 - Frontend environment variable: `VITE_CONVEX_URL` contains the Convex Cloud deployment URL.
 - Auto DM is a tabletop companion, not a video game.

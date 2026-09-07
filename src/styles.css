@@ -1,8 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #17211e;
+  --color-foreground: #f4ecd9;
+  --color-primary: #e6be70;
+  --color-primary-foreground: #161e1b;
+  --color-secondary: #31493e;
+  --color-secondary-foreground: #f4ecd9;
+  --color-muted: #21322c;
+  --color-muted-foreground: #d6dfd3;
+  --color-accent: #31493e;
+  --color-accent-foreground: #f4ecd9;
+  --color-popover: #17211e;
+  --color-popover-foreground: #f4ecd9;
+  --color-border: #83988b;
+  --color-input: #83988b;
+  --color-ring: #fff5e3;
+  --color-destructive: #ffb4a5;
+  --text-xs: 1rem;
+  --text-sm: 1rem;
+}
+
 :root {
+  color-scheme: dark;
   font-family: 'Space Grotesk', sans-serif;
+  font-size: 112.5%;
+  line-height: 1.6;
+  --sea-ink: #f4ecd9;
+  --sea-ink-soft: #d6dfd3;
+  --lagoon-deep: #efd091;
+  --lagoon: #31493e;
+  --line: #83988b;
+  --link-bg-hover: #31493e;
   color: #f4ecd9;
   background: #111817;
 }
@@ -25,7 +55,17 @@ button {
 }
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.42;
+  opacity: 0.65;
+}
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid #fff5e3;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px #111817;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #c6d2c8;
+  opacity: 1;
 }
 .app-header {
   position: fixed;
@@ -68,7 +108,7 @@ button:disabled {
   margin-bottom: 1.2rem;
   font-family: 'Libre Baskerville', serif;
   font-size: clamp(2rem, 8vw, 4rem);
-  line-height: 1.1;
+  line-height: 1.5;
 }
 .not-found-page a {
   width: fit-content;
@@ -82,8 +122,7 @@ button:disabled {
 .game-shell--play {
   position: relative;
   isolation: isolate;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
 }
 .dungeon-background {
   position: fixed;
@@ -114,17 +153,17 @@ body:has(.game-shell--play) .app-header {
   right: calc(0.75rem + env(safe-area-inset-right));
   display: grid;
   place-items: center;
-  width: 2.65rem;
-  height: 2.65rem;
+  width: 2.75rem;
+  height: 2.75rem;
   color: #f6ebd4;
   border: 1px solid transparent;
   border-radius: 50%;
-  background: transparent;
-  opacity: 0.72;
+  background: #1c2724;
+  opacity: 1;
 }
 .corner-settings:hover,
 .corner-settings:focus-visible {
-  border-color: #536158;
+  border-color: #83988b;
   background: #1c2724;
   opacity: 1;
 }
@@ -145,7 +184,7 @@ body:has(.game-shell--play) .app-header {
   margin: 0 0 0.7rem;
   color: #d8a755;
   font-family: 'DM Mono', monospace;
-  font-size: 0.68rem;
+  font-size: 1rem;
   font-weight: 500;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -161,12 +200,12 @@ p {
   font-family: 'Libre Baskerville', serif;
   font-size: clamp(2.5rem, 10vw, 5.6rem);
   line-height: 1.03;
-  letter-spacing: -0.065em;
+  letter-spacing: -0.035em;
 }
 .setup-heading > p:last-child {
   max-width: 33rem;
   margin-bottom: 0;
-  color: #b8c4b6;
+  color: #d6dfd3;
   font-size: 1rem;
   line-height: 1.55;
 }
@@ -185,9 +224,9 @@ p {
 }
 .counter-card p {
   margin-bottom: 1.2rem;
-  color: #566157;
+  color: #3e4b41;
   font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -200,8 +239,8 @@ p {
 .counter-card button {
   display: grid;
   place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   color: #f5ecd8;
   border: 0;
@@ -222,9 +261,9 @@ p {
   display: block;
   min-height: 2.1em;
   margin-top: 1rem;
-  color: #657268;
-  font-size: 0.72rem;
-  line-height: 1.4;
+  color: #3e4b41;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 .primary-cta,
 .play-cta {
@@ -251,6 +290,7 @@ p {
   transform: none;
 }
 .how-to-play-button {
+  min-height: 2.75rem;
   display: inline-flex;
   align-self: center;
   align-items: center;
@@ -279,7 +319,7 @@ p {
   overflow-y: auto;
   padding: 1.35rem;
   color: #f3ead7;
-  border: 1px solid #536158;
+  border: 1px solid #83988b;
   border-radius: 10px;
   background: #17211e;
   box-shadow: 8px 10px 0 rgb(0 0 0 / 0.35);
@@ -297,10 +337,11 @@ p {
 .how-to-play-panel header button {
   display: grid;
   place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
   color: #efe4ce;
-  border: 1px solid #536158;
+  border: 1px solid #83988b;
   border-radius: 5px;
   background: transparent;
 }
@@ -337,18 +378,16 @@ p {
   width: 100%;
   height: auto;
 }
-.monster-cards-grid .monster-art {
-  min-height: 20rem;
-}
 .step-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #afbdaf;
+  color: #d6dfd3;
   font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 1rem;
 }
 .back-button {
+  min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.1rem;
@@ -371,7 +410,7 @@ p {
   padding: 0.8rem;
   text-align: left;
   color: #d9e0d5;
-  border: 1px solid #4d5b54;
+  border: 1px solid #83988b;
   border-radius: 8px;
   background: #1b2723;
 }
@@ -392,8 +431,8 @@ p {
 }
 .class-choice small {
   margin-top: 0.12rem;
-  opacity: 0.72;
-  font-size: 0.68rem;
+  opacity: 1;
+  font-size: 1rem;
 }
 .hero-details {
   display: grid;
@@ -404,7 +443,7 @@ p {
   display: grid;
   gap: 0.4rem;
   color: #d6dfd3;
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 input,
@@ -412,11 +451,10 @@ select {
   width: 100%;
   padding: 0.8rem;
   color: #f7eedc;
-  border: 1px solid #4d5b54;
+  border: 1px solid #83988b;
   border-radius: 6px;
   background: #1b2723;
   font-size: 1rem;
-  outline: none;
 }
 input:focus,
 select:focus {
@@ -431,7 +469,7 @@ fieldset {
 legend {
   margin-bottom: 0.45rem;
   color: #d6dfd3;
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 .heritage-row {
@@ -442,12 +480,13 @@ legend {
 .heritage-row button,
 .setting-choice-row button,
 .dice-row button {
+  min-height: 2.75rem;
   padding: 0.65rem 0.35rem;
   color: #c8d1c6;
-  border: 1px solid #4d5b54;
+  border: 1px solid #83988b;
   border-radius: 5px;
   background: #1b2723;
-  font-size: 0.72rem;
+  font-size: 1rem;
 }
 .heritage-row button.is-selected,
 .setting-choice-row button.is-selected,
@@ -481,14 +520,14 @@ legend {
 }
 .party-review small {
   margin-top: 0.15rem;
-  color: #667168;
-  font-size: 0.72rem;
+  color: #3e4b41;
+  font-size: 1rem;
 }
 .party-review b {
   margin-left: auto;
-  color: #536258;
+  color: #3e4b41;
   font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 1rem;
 }
 .play-cta {
   flex-direction: column;
@@ -498,28 +537,31 @@ legend {
 }
 .play-cta small {
   color: #65572f;
-  font-size: 0.72rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 .play-screen {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto auto auto auto;
   gap: 0.65rem;
-  height: 100%;
+  min-height: 100dvh;
   padding: calc(1.05rem + env(safe-area-inset-top))
     calc(0.8rem + env(safe-area-inset-right))
     calc(0.8rem + env(safe-area-inset-bottom))
     calc(0.8rem + env(safe-area-inset-left));
 }
 .play-status {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #111817;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   color: #d9a84e;
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -529,7 +571,7 @@ legend {
 .play-status__brand {
   color: #f3e5c8;
   font-family: 'Libre Baskerville', serif;
-  font-size: 0.72rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -538,13 +580,14 @@ legend {
   display: grid;
   min-height: 0;
   place-items: start center;
-  overflow: hidden;
 }
 .game-card {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: anywhere;
+  grid-template-rows: auto auto auto auto auto;
   width: min(100%, 440px);
-  height: 100%;
+  height: auto;
   overflow: hidden;
   color: #1c211d;
   border: 7px solid #d7c6a1;
@@ -557,7 +600,7 @@ legend {
   color: #f6e8c9;
   background: #33483d;
   font-family: 'DM Mono', monospace;
-  font-size: 0.62rem;
+  font-size: 1rem;
   font-weight: 500;
   letter-spacing: 0.16em;
 }
@@ -565,7 +608,8 @@ legend {
   background: #7a3c2f;
 }
 .monster-art {
-  min-height: 12rem;
+  min-height: 0;
+  aspect-ratio: 623 / 841;
   background-repeat: no-repeat;
   /* Each asset is a three-panel sheet. Keep the selected panel proportional. */
   background-size: 300% auto;
@@ -604,6 +648,7 @@ legend {
 }
 .card-title {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.65rem 0.7rem 0.55rem;
@@ -612,17 +657,19 @@ legend {
 .card-title h2 {
   margin-bottom: 0.18rem;
   font-family: 'Libre Baskerville', serif;
-  font-size: clamp(0.98rem, 4vw, 1.2rem);
-  line-height: 1.08;
+  font-size: 1.4rem;
+  line-height: 1.5;
 }
 .card-title p {
   margin-bottom: 0;
-  color: #627066;
-  font-size: 0.64rem;
-  line-height: 1.25;
+  color: #3e4b41;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 .health-control {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   align-items: center;
   height: fit-content;
   overflow: hidden;
@@ -635,8 +682,8 @@ legend {
 .health-control button {
   display: grid;
   place-items: center;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   color: #4e5b51;
   border: 0;
@@ -645,42 +692,49 @@ legend {
 .health-control button:hover {
   background: #e5d5b6;
 }
+.health-control button:focus-visible {
+  outline-color: #24342d;
+  outline-offset: -4px;
+  box-shadow: none;
+}
 .health-control svg {
-  width: 0.75rem;
+  width: 1rem;
 }
 .health-control strong {
+  padding-inline: 0.35rem;
   display: flex;
   gap: 0.14rem;
   align-items: center;
   font-family: 'DM Mono', monospace;
-  font-size: 0.64rem;
+  font-size: 1rem;
 }
 .card-rule {
-  padding: 0.45rem 0.7rem;
+  padding: 0.85rem;
   border-bottom: 1px solid #d2c3a4;
 }
 .card-rule span {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  color: #4f5c51;
+  color: #3e4b41;
   font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 1rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .card-rule svg {
-  width: 0.75rem;
+  width: 1rem;
+  flex-shrink: 0;
 }
 .card-rule p {
   margin: 0.25rem 0 0;
-  font-size: 0.7rem;
-  line-height: 1.3;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 .play-actions {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr;
   gap: 0.45rem;
 }
 .play-actions button {
@@ -688,15 +742,15 @@ legend {
   justify-content: center;
   align-items: center;
   gap: 0.25rem;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0.45rem 0.65rem;
   border-radius: 5px;
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 .round-button {
   color: #d6e2d3;
-  border: 1px solid #536158;
+  border: 1px solid #83988b;
   background: #202d28;
 }
 .next-room {
@@ -705,9 +759,9 @@ legend {
   background: #e2b966;
 }
 .end-game-button {
-  color: #bdc8bb;
-  border: 1px solid #4d5b54;
-  background: transparent;
+  color: #d6dfd3;
+  border: 1px solid #83988b;
+  background: #202d28;
 }
 .end-game-button.is-confirming {
   color: #241816;
@@ -715,24 +769,26 @@ legend {
   background: #c77d67;
 }
 .card-switcher {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #111817;
   display: flex;
   gap: 0.5rem;
   min-width: 0;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding-bottom: 0.15rem;
 }
 .switcher-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.3rem;
   align-items: center;
 }
 .switcher-group > span {
-  color: #859185;
+  color: #d6dfd3;
   font-family: 'DM Mono', monospace;
-  font-size: 0.57rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
 }
 .switcher-group button {
   display: grid;
@@ -741,8 +797,8 @@ legend {
   min-width: 2.8rem;
   min-height: 2.8rem;
   padding: 0.27rem;
-  color: #bdc8bb;
-  border: 1px solid #4a5850;
+  color: #d6dfd3;
+  border: 1px solid #83988b;
   border-radius: 5px;
   background: #1b2723;
   font-size: 1rem;
@@ -754,12 +810,10 @@ legend {
 }
 .switcher-group small {
   display: block;
-  max-width: 4.3rem;
-  overflow: hidden;
-  font-size: 0.52rem;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 10rem;
+  white-space: normal;
 }
 .settings-backdrop {
   position: fixed;
@@ -778,7 +832,7 @@ legend {
     calc(2rem + env(safe-area-inset-bottom))
     calc(1.2rem + env(safe-area-inset-left));
   color: #f3ead7;
-  border-left: 1px solid #536158;
+  border-left: 1px solid #83988b;
   background: #17211e;
 }
 .settings-panel header {
@@ -794,10 +848,11 @@ legend {
 .settings-panel header button {
   display: grid;
   place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
   color: #efe4ce;
-  border: 1px solid #536158;
+  border: 1px solid #83988b;
   border-radius: 5px;
   background: transparent;
 }
@@ -816,12 +871,12 @@ legend {
   text-transform: capitalize;
 }
 .setting-choice-row small {
-  font-size: 0.58rem;
+  font-size: 1rem;
 }
 .setting-help {
   margin: 0 0 0.65rem;
-  color: #aab7a8;
-  font-size: 0.7rem;
+  color: #d6dfd3;
+  font-size: 1rem;
   line-height: 1.45;
 }
 .dice-row {
@@ -838,7 +893,7 @@ legend {
   border-radius: 5px;
   background: #d5d3bf;
   font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 1rem;
 }
 .dice-row button {
   min-width: 2.65rem;
@@ -849,7 +904,7 @@ legend {
   gap: 0.7rem;
   align-items: start;
   padding: 0.85rem;
-  border: 1px solid #4d5b54;
+  border: 1px solid #83988b;
   border-radius: 6px;
 }
 .settings-toggle input {
@@ -866,12 +921,65 @@ legend {
 }
 .settings-toggle small {
   margin-top: 0.18rem;
-  color: #aab7a8;
-  font-size: 0.66rem;
+  color: #d6dfd3;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.5;
 }
-@media (min-width: 700px) {
+
+/* Secondary routes share the same readable palette as the game. */
+.page-wrap,
+.demo-page {
+  min-height: 100dvh;
+  max-width: 70rem;
+  margin-inline: auto;
+  padding: 7rem 1.2rem 2rem;
+}
+.island-shell,
+.demo-panel,
+.demo-card {
+  padding: 1.5rem;
+  border: 1px solid #83988b;
+  border-radius: 10px;
+  color: #f4ecd9;
+  background: #17211e;
+}
+.island-kicker,
+.demo-muted {
+  color: #d6dfd3;
+}
+.demo-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+.demo-button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  color: #161e1b;
+  background: #e6be70;
+  font-weight: 700;
+}
+.demo-button-danger {
+  background: #ffb4a5;
+}
+[data-slot='button'],
+[data-slot='select-trigger'],
+[data-slot='input'] {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+[data-slot='textarea'] {
+  font-size: 1rem;
+}
+[data-slot='button'][data-variant='destructive'] {
+  color: #291610;
+}
+.demo-page .text-red-600 {
+  color: #ffb4a5;
+}
+@media (min-width: 60rem) {
   .app-header {
     padding: calc(1.55rem + env(safe-area-inset-top))
       calc(2rem + env(safe-area-inset-right)) 1.55rem
@@ -888,7 +996,7 @@ legend {
     grid-template-columns: repeat(3, 1fr);
   }
   .play-screen {
-    width: min(850px, 100%);
+    width: min(1100px, 100%);
     margin: auto;
     padding-inline: 1.5rem;
     grid-template-areas:
@@ -896,7 +1004,7 @@ legend {
       'card actions'
       'card switcher';
     grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 17rem);
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr auto;
   }
   .play-status {
     grid-area: status;
@@ -920,16 +1028,65 @@ legend {
   }
 }
 
-@media (max-height: 760px) {
+@media (max-width: 24rem) {
+  .app-header {
+    padding: 24px 76px 24px 16px;
+  }
+  .app-header__brand {
+    font-size: clamp(16px, 0.9rem, 24px);
+  }
+  .corner-settings {
+    top: 12px;
+    right: 12px;
+    width: 56px;
+    height: 56px;
+  }
+  .setup-screen {
+    padding-inline: 16px;
+    overflow-wrap: anywhere;
+  }
+  .settings-panel,
+  .how-to-play-panel {
+    min-width: 0;
+    padding: 20px 16px;
+    overflow-wrap: anywhere;
+  }
+  .settings-panel select {
+    min-width: 0;
+  }
+  .counter-card > div {
+    flex-wrap: wrap;
+  }
   .play-screen {
-    gap: 0.4rem;
-    padding-top: 0.85rem;
+    padding-inline: max(12px, env(safe-area-inset-left))
+      max(12px, env(safe-area-inset-right));
   }
-  .monster-art,
-  .hero-card__art {
-    min-height: 8rem;
-  }
+  .card-title,
   .card-rule {
-    padding-block: 0.32rem;
+    padding: 12px;
+  }
+  .class-grid,
+  .heritage-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .play-status {
+    letter-spacing: 0;
+    overflow-wrap: normal;
+  }
+  .play-status > span {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .count-grid,
+  .setting-choice-row {
+    grid-template-columns: 1fr;
+  }
+  .play-status {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .play-status__brand {
+    grid-column: 1 / -1;
+    grid-row: 1;
   }
 }
